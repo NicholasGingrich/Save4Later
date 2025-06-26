@@ -1,68 +1,86 @@
-{
-  "topics": [
-    {
-      "name": "Everything Everywhere All At Once",
-      "creationDate": "2025-06-20T15:30:00Z",
-      "lastModified": "2025-06-20T15:30:00Z",
-      "comments": ["Recommended on TikTok as a mind-bending multiverse movie.", "Won several Oscars."],
-      "images": [],
-      "links": ["https://www.imdb.com/title/tt6710474/"],
-      "category": "Movies"
-    },
-    {
-      "name": "Sushi Nakazawa NYC",
-      "creationDate": "2025-06-22T10:15:00Z",
-      "lastModified": "2025-06-22T10:15:00Z",
-      "comments": ["Saw this on a foodie TikTok. Chef trained under Jiro!", "Make a reservation 2 weeks in advance."],
-      "images": [],
-      "links": ["https://www.sushinakazawa.com/"],
-      "category": "Restaurants"
-    },
-    {
-      "name": "Learn 'Heather' by Conan Gray on guitar",
-      "creationDate": "2025-06-18T08:45:00Z",
-      "lastModified": "2025-06-18T08:45:00Z",
-      "comments": ["Nice fingerpicking technique shown in tutorial.", "Good beginner-to-intermediate level."],
-      "images": [],
-      "links": ["https://www.youtube.com/watch?v=t9iW0A7xRyg"],
-      "category": "Music"
-    },
-    {
-      "name": "Kyoto, Japan travel list",
-      "creationDate": "2025-06-19T19:00:00Z",
-      "lastModified": "2025-06-23T14:20:00Z",
-      "comments": ["Temples, tea houses, and that bamboo forest. Save for spring trip."],
-      "images": [],
-      "links": ["https://www.japan.travel/en/destinations/kansai/kyoto/"],
-      "category": "Places"
-    },
-    {
-      "name": "Inside Out 2",
-      "creationDate": "2025-06-15T09:00:00Z",
-      "lastModified": "2025-06-15T09:00:00Z",
-      "comments": ["Pixar sequel just hit theaters, looks super emotional."],
-      "images": [],
-      "links": ["https://www.rottentomatoes.com/m/inside_out_2"],
-      "category": "Movies"
-    },
-    {
-      "name": "Try mushroom risotto recipe",
-      "creationDate": "2025-06-21T11:20:00Z",
-      "lastModified": "2025-06-21T11:20:00Z",
-      "comments": ["TikTok chef made it look easy. Said arborio rice is key."],
-      "images": [],
-      "links": ["https://www.youtube.com/watch?v=V4gC2JDwQDE"],
-      "category": "Recipes"
-    },
-    {
-      "name": "Books recommended by Billie Eilish",
-      "creationDate": "2025-06-24T18:10:00Z",
-      "lastModified": "2025-06-24T18:10:00Z",
-      "comments": ["She mentioned 'The Bell Jar' and '1984' in an interview."],
-      "images": [],
-      "links": ["https://www.goodreads.com/list/show/151539.Billie_Eilish_s_Book_Recommendations"],
-      "category": "Books"
-    }
-  ]
-}
-
+[
+  {
+    "id": 6,
+    "name": "Try mushroom risotto recipe",
+    "creationDate": "2025-06-21",
+    "lastModifiedDate": "2025-06-21",
+    "notes": "TikTok chef made it look easy. Said arborio rice is key. And also said to stir constantly and add broth little by little for creaminess. It really takes patience.",
+    "images": ["Mushroom-Risotto-1", "Mushroom-Risotto-2"],
+    "links": [
+      "https://www.youtube.com/watch?v=V4gC2JDwQDE"
+    ],
+    "category": "recipe"
+  },
+  {
+    "id": 1,
+    "name": "Everything Everywhere All At Once",
+    "creationDate": "2025-06-20",
+    "lastModifiedDate": "2025-06-20",
+    "notes": "Recommended on TikTok as a mind-bending multiverse movie. Won several Oscars.",
+    "images": ["EEAAO"],
+    "links": [
+      "https://www.imdb.com/title/tt6710474/"
+    ],
+    "category": "movie"
+  },
+  {
+    "id": 2,
+    "name": "Sushi Nakazawa NYC",
+    "creationDate": "2025-06-22",
+    "lastModifiedDate": "2025-06-22",
+    "notes": "Saw this on a foodie TikTok. Chef trained under Jiro! Make a reservation 2 weeks in advance.",
+    "images": ["Sushi-1", "Sushi-2"],
+    "links": [
+      "https://www.sushinakazawa.com/"
+    ],
+    "category": "restaurant"
+  },
+  {
+    "id": 3,
+    "name": "Learn 'Heather' by Conan Gray on guitar",
+    "creationDate": "2025-06-18",
+    "lastModifiedDate": "2025-06-18",
+    "notes": "Nice fingerpicking technique shown in tutorial. Good beginner-to-intermediate level.",
+    "images": ["heather-tab"],
+    "links": [
+      "https://www.youtube.com/watch?v=t9iW0A7xRyg"
+    ],
+    "category": "song"
+  },
+  {
+    "id": 4,
+    "name": "Kyoto, Japan travel list",
+    "creationDate": "2025-06-19",
+    "lastModifiedDate": "2025-06-23",
+    "notes": "Temples, tea houses, and that bamboo forest. Save for spring trip.",
+    "images": ["kyoto-1", "kyoto-2"],
+    "links": [
+      "https://www.japan.travel/en/destinations/kansai/kyoto/"
+    ],
+    "category": "place"
+  },
+  {
+    "id": 5,
+    "name": "Inside Out 2",
+    "creationDate": "2025-06-15",
+    "lastModifiedDate": "2025-06-15",
+    "notes": "Pixar sequel just hit theaters, looks super emotional.",
+    "images": ["inside-out-2"],
+    "links": [
+      "https://www.rottentomatoes.com/m/inside_out_2"
+    ],
+    "category": "movie"
+  },
+  {
+    "id": 7,
+    "name": "Books recommended by Billie Eilish",
+    "creationDate": "2025-06-24",
+    "lastModifiedDate": "2025-06-24",
+    "notes": "She mentioned 'The Bell Jar' and '1984' in an interview.",
+    "images": ["bell-jar-book", "1984-book"],
+    "links": [
+      "https://www.goodreads.com/list/show/151539.Billie_Eilish_s_Book_Recommendations"
+    ],
+    "category": "book"
+  }
+]
