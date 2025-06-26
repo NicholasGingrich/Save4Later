@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SavedItemDetail: View {
+    @Environment(ModelData.self) private var modelData
     var savedItem: SavedItem
 
     @State private var expanded = false
@@ -13,13 +14,23 @@ struct SavedItemDetail: View {
                     ScrollView(.horizontal, showsIndicators: true) {
                         HStack(spacing: 0) {
                             ForEach(savedItem.images, id: \.self) { name in
-                                RoundedImage(image: Image(name))
-                                    .frame(width: geometry.size.width * 0.92, height: geometry.size.height * 0.7)
-                                    .clipped()
-                                    .padding(.horizontal)
+                                // Check if file exists in Documents folder (saved user images)
+                                if let image = modelData.loadImageFromDocuments(name) {
+                                    RoundedImage(image: image)
+                                        .frame(width: geometry.size.width * 0.92, height: geometry.size.height * 0.7)
+                                        .clipped()
+                                        .padding(.horizontal)
+                                } else {
+                                    // Otherwise, try loading from assets (bundled images)
+                                    RoundedImage(image: Image(name))
+                                        .frame(width: geometry.size.width * 0.92, height: geometry.size.height * 0.7)
+                                        .clipped()
+                                        .padding(.horizontal)
+                                }
                             }
                         }
                     }
+
                     
                     VStack(alignment: .leading) {
                         Text(savedItem.name).font(.title2)

@@ -2,23 +2,23 @@ import SwiftUI
 import PhotosUI
 
 struct CreateSavedItem: View {
+    @Environment(ModelData.self) private var modelData
+
     @State private var name: String = ""
-    @State private var category: String = "General"
+    @State private var category: SavedItem.ItemCategory = .general
     @State private var link: String = ""
     @State private var note: String = ""
     @State private var selectedImages: [PhotosPickerItem] = []
-    @State private var images: [Image] = []
-    
-    let categories = ["Movie", "TV Show", "Song", "Restaurant", "Activity", "Place", "Book", "Recipe", "General"]
-    
+    @State private var images: [UIImage] = [] // hold raw UIImages
+
     var body: some View {
         Form {
             Section(header: Text("Create New Item")) {
                 TextField("Name", text: $name)
 
                 Picker("Category", selection: $category) {
-                    ForEach(categories, id: \.self) {
-                        Text($0)
+                    ForEach(SavedItem.ItemCategory.allCases, id: \.self) { category in
+                        Text(category.rawValue)
                     }
                 }
 
@@ -26,7 +26,7 @@ struct CreateSavedItem: View {
                     .keyboardType(.URL)
                     .autocapitalization(.none)
             }
-            
+
             Section(header: Text("Note")) {
                 TextEditor(text: $note)
                     .frame(height: 120)
@@ -46,7 +46,7 @@ struct CreateSavedItem: View {
                     ScrollView(.horizontal) {
                         HStack {
                             ForEach(images.indices, id: \.self) { index in
-                                images[index]
+                                Image(uiImage: images[index])
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 100, height: 100)
@@ -60,7 +60,26 @@ struct CreateSavedItem: View {
 
             Section {
                 Button("Save Item") {
-                    print("Saved item: \(name), \(category), \(link), \(note), \(images.count) images")
+                    var savedFilenames: [String] = []
+
+                    for uiImage in images {
+                        if let filename = try? modelData.saveImageToDocuments(uiImage) {
+                            savedFilenames.append(filename)
+                        }
+                    }
+
+                    let newItem = SavedItem(
+                        id: Int.random(in: 100...999),
+                        name: name,
+                        creationDate: Date.now.ISO8601Format(),
+                        lastModifiedDate: Date.now.ISO8601Format(),
+                        notes: note,
+                        images: savedFilenames,
+                        links: [link],
+                        category: category
+                    )
+
+                    modelData.addItem(newItem)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
@@ -71,16 +90,17 @@ struct CreateSavedItem: View {
                 for item in selectedImages {
                     if let data = try? await item.loadTransferable(type: Data.self),
                        let uiImage = UIImage(data: data) {
-                        images.append(Image(uiImage: uiImage))
+                        images.append(uiImage)
                     }
                 }
             }
         }
-
     }
 }
 
 #Preview {
     CreateSavedItem()
+        .environment(ModelData())
 }
+
 

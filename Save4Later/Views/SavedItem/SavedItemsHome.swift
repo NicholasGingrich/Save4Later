@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SavedItemsHome: View {
-    @Environment(ModelData.self) var modelData
+    @Environment(ModelData.self) private var modelData
     @State private var showingCreateScreen = false
     
     var body: some View {
