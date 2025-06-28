@@ -6,9 +6,7 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "TikTok chef made it look easy. Said arborio rice is key. And also said to stir constantly and add broth little by little for creaminess. It really takes patience.",
     "images": ["Mushroom-Risotto-1", "Mushroom-Risotto-2"],
-    "links": [
-      "https://www.youtube.com/watch?v=V4gC2JDwQDE"
-    ],
+    "link": "https://www.youtube.com/watch?v=V4gC2JDwQDE",
     "category": "Recipe"
   },
   {
@@ -18,9 +16,7 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "Recommended on TikTok as a mind-bending multiverse movie. Won several Oscars.",
     "images": ["EEAAO"],
-    "links": [
-      "https://www.imdb.com/title/tt6710474/"
-    ],
+    "link": "https://www.imdb.com/title/tt6710474/",
     "category": "Movie"
   },
   {
@@ -30,9 +26,7 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "Saw this on a foodie TikTok. Chef trained under Jiro! Make a reservation 2 weeks in advance.",
     "images": ["Sushi-1", "Sushi-2"],
-    "links": [
-      "https://www.sushinakazawa.com/"
-    ],
+    "link": "https://www.sushinakazawa.com/",
     "category": "Restaurant"
   },
   {
@@ -42,9 +36,7 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "Nice fingerpicking technique shown in tutorial. Good beginner-to-intermediate level.",
     "images": ["heather-tab"],
-    "links": [
-      "https://www.youtube.com/watch?v=t9iW0A7xRyg"
-    ],
+    "link": "https://www.youtube.com/watch?v=t9iW0A7xRyg",
     "category": "Song"
   },
   {
@@ -54,9 +46,7 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "Temples, tea houses, and that bamboo forest. Save for spring trip.",
     "images": ["kyoto-1", "kyoto-2"],
-    "links": [
-      "https://www.japan.travel/en/destinations/kansai/kyoto/"
-    ],
+    "link": "https://www.japan.travel/en/destinations/kansai/kyoto/",
     "category": "Place"
   },
   {
@@ -66,9 +56,7 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "Pixar sequel just hit theaters, looks super emotional.",
     "images": ["inside-out-2"],
-    "links": [
-      "https://www.rottentomatoes.com/m/inside_out_2"
-    ],
+    "link": "https://www.rottentomatoes.com/m/inside_out_2",
     "category": "Movie"
   },
   {
@@ -78,9 +66,7 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "She mentioned 'The Bell Jar' and '1984' in an interview.",
     "images": ["bell-jar-book", "1984-book"],
-    "links": [
-      "https://www.goodreads.com/list/show/151539.Billie_Eilish_s_Book_Recommendations"
-    ],
+    "link": "https://www.goodreads.com/list/show/151539.Billie_Eilish_s_Book_Recommendations",
     "category": "Book"
   }
 ]

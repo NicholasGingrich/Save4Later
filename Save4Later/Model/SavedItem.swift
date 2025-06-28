@@ -7,7 +7,7 @@ struct SavedItem: Codable, Hashable, Identifiable {
     var lastModifiedDate: String
     var notes: String
     var images: [String] // Image file names stored to disk
-    var links: [String]
+    var link: String
     var category: ItemCategory
 
     // Use this in UI when showing image preview
