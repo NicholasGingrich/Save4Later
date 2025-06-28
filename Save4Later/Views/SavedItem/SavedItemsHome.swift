@@ -3,17 +3,17 @@ import SwiftUI
 struct SavedItemsHome: View {
     @Environment(ModelData.self) private var modelData
     @State private var showingCreateScreen = false
-    
+
     var body: some View {
         NavigationSplitView {
             List {
-                modelData.savedItems[0].previewImage
+                modelData.savedItems.first?.previewImage
                     .resizable()
                     .scaledToFill()
                     .frame(height: 200)
                     .clipped()
                     .listRowInsets(EdgeInsets())
-                
+
                 ForEach(modelData.categories.keys.sorted(), id: \.self) { category in
                     SavedItemHomeRow(categoryName: category, rowItems: modelData.categories[category]!)
                 }
@@ -29,7 +29,10 @@ struct SavedItemsHome: View {
                 }
             }
             .sheet(isPresented: $showingCreateScreen) {
-                CreateSavedItem()
+                SavedItemInfoForm(
+                    sectionText: "Create New Item",
+                    closeView: { showingCreateScreen.toggle() }
+                )
             }
         } detail: {
             Text("Select a saved item to view")

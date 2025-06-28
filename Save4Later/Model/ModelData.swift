@@ -40,15 +40,26 @@ class ModelData {
     }
 
     // MARK: - Load image from filename
-
+    
     func loadImageFromDocuments(_ filename: String) -> Image? {
         let url = getDocumentsURL().appendingPathComponent(filename)
         if let data = try? Data(contentsOf: url),
            let uiImage = UIImage(data: data) {
-            return Image(uiImage: uiImage)
+            return Image(uiImage: uiImage)   // <-- returns Image
         }
         return nil
     }
+
+
+    func loadUIImageFromDocuments(_ filename: String) -> UIImage? {
+        let url = getDocumentsURL().appendingPathComponent(filename)
+        if let data = try? Data(contentsOf: url),
+           let uiImage = UIImage(data: data) {
+            return uiImage   // <-- return UIImage directly
+        }
+        return nil
+    }
+
 
     // MARK: - Load and save savedItems JSON
 
@@ -88,6 +99,23 @@ class ModelData {
     func addItem(_ item: SavedItem) {
         savedItems.append(item)
         saveToDisk()
+    }
+    
+    func removeItem(_ item: SavedItem) {
+        print("here we are removing the item \(item)")
+
+        if let index = savedItems.firstIndex(where: { $0.id == item.id }) {
+            print("In the let statement. here we are removing the item \(item)")
+            savedItems.remove(at: index)
+            saveToDisk()
+        }
+    }
+    
+    func updateItem(_ updatedItem: SavedItem) {
+        if let index = savedItems.firstIndex(where: { $0.id == updatedItem.id }) {
+            savedItems[index] = updatedItem
+            saveToDisk()
+        }
     }
 }
 

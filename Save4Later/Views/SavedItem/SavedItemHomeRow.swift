@@ -13,7 +13,7 @@ struct SavedItemHomeRow: View {
                 HStack {
                     ForEach(rowItems, id: \.self) { savedItem in
                         NavigationLink {
-                            SavedItemDetail(savedItem: savedItem)
+                            SavedItemDetail(initialItem: savedItem)
                         } label: {
                             SavedItemPreview(savedItem: savedItem)
                         }
