@@ -50,16 +50,29 @@ struct SavedItemInfoForm: View {
 
                 if !images.isEmpty {
                     ScrollView(.horizontal) {
-                        HStack {
+                        HStack(spacing: 15) {
                             ForEach(images.indices, id: \.self) { index in
-                                Image(uiImage: images[index])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .clipped()
-                                    .cornerRadius(8)
+                                ZStack {
+                                    Image(uiImage: images[index])
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .clipped()
+                                        .cornerRadius(8)
+                                    
+                                    Button(action: {
+                                         images.remove(at: index)
+                                     }) {
+                                         Image(systemName: "xmark.circle.fill")
+                                             .foregroundColor(.white)
+                                             .background(Color.black.opacity(0.6))
+                                             .clipShape(Circle())
+                                     }
+                                     .offset(x: 50, y: -50)
+                                }
                             }
                         }
+                        .padding(.top, 10)
                     }
                 }
             }
