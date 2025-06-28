@@ -1,8 +1,10 @@
 import SwiftUI
 import PhotosUI
 
-struct CreateSavedItem: View {
+struct SavedItemInfoForm: View {
     @Environment(ModelData.self) private var modelData
+    
+    var sectionText: String
 
     @State private var name: String = ""
     @State private var category: SavedItem.ItemCategory = .general
@@ -13,7 +15,7 @@ struct CreateSavedItem: View {
 
     var body: some View {
         Form {
-            Section(header: Text("Create New Item")) {
+            Section(header: Text(sectionText)) {
                 TextField("Name", text: $name)
 
                 Picker("Category", selection: $category) {
@@ -75,7 +77,7 @@ struct CreateSavedItem: View {
                         lastModifiedDate: Date.now.ISO8601Format(),
                         notes: note,
                         images: savedFilenames,
-                        links: [link],
+                        link: link,
                         category: category
                     )
 
@@ -99,7 +101,7 @@ struct CreateSavedItem: View {
 }
 
 #Preview {
-    CreateSavedItem()
+    SavedItemInfoForm(sectionText: "Create New Item")
         .environment(ModelData())
 }
 
