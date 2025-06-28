@@ -6,7 +6,7 @@ struct SavedItemHomeRow: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(categoryName.pluralize.capitalized)
+            Text(categoryName.capitalized)
                 .font(.headline)
             
             ScrollView(.horizontal, showsIndicators: false) {

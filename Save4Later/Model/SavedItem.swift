@@ -27,15 +27,15 @@ struct SavedItem: Codable, Hashable, Identifiable {
     }
 
     enum ItemCategory: String, CaseIterable, Codable {
-        case recipe = "Recipe"
-        case book = "Book"
-        case article = "Article"
-        case song = "Song"
-        case TvShow = "Show"
-        case movie = "Movie"
-        case restruant = "Restaurant"
-        case place = "Place"
-        case activty = "Activity"
+        case recipes = "Recipes"
+        case books = "Books"
+        case articles = "Articles"
+        case songs = "Songs"
+        case TvShows = "Shows"
+        case movies = "Movies"
+        case restruants = "Restaurants"
+        case places = "Places"
+        case activties = "Activities"
         case general = "General"
     }
 }
