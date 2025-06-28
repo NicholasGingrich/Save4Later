@@ -4,7 +4,7 @@ import PhotosUI
 struct SavedItemInfoForm: View {
     @Environment(ModelData.self) private var modelData
 
-    @Binding var currentSavedItem: SavedItem?
+    @State var currentSavedItem: SavedItem?
 
     private var sectionText: String
     var closeView: () -> Void
@@ -17,8 +17,8 @@ struct SavedItemInfoForm: View {
     @State private var selectedImages: [PhotosPickerItem] = []
     @State private var images: [UIImage] = []
 
-    init(currentItem: Binding<SavedItem?> = .constant(nil), sectionText: String, closeView: @escaping () -> Void, onDelete: @escaping () -> Void = {}) {
-        self._currentSavedItem = currentItem
+    init(currentItem: SavedItem? = nil, sectionText: String, closeView: @escaping () -> Void, onDelete: @escaping () -> Void = {}) {
+        self.currentSavedItem = currentItem
         self.sectionText = sectionText
         self.closeView = closeView
         self.onDelete = onDelete

@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SavedItemDetail: View {
-    @State private var editableItem: SavedItem? = nil
     @State private var showEditScreen: Bool = false
     @State private var wasDeleted = false
     
@@ -40,7 +39,6 @@ struct SavedItemDetail: View {
                             Text(savedItem.name).font(.title2)
                             Spacer()
                             Button {
-                                editableItem = savedItem
                                 showEditScreen.toggle()
                             } label: {
                                 Image(systemName: "pencil.circle.fill")
@@ -76,7 +74,7 @@ struct SavedItemDetail: View {
         }
         .sheet(isPresented: $showEditScreen) {
             SavedItemInfoForm(
-                currentItem: $editableItem,
+                currentItem: savedItem,
                 sectionText: "Edit Item",
                 closeView: { showEditScreen = false },
                 onDelete: {
