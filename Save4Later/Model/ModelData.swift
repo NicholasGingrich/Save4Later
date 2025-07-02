@@ -117,6 +117,45 @@ class ModelData {
             saveToDisk()
         }
     }
+    
+    func importSharedItemIfAvailable() {
+        let groupURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later")!
+        let fileURL = groupURL.appendingPathComponent("savedItemToImport.json")
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let sharedItem = try JSONDecoder().decode(SharedSavedItem.self, from: data)
+
+            // Save images to disk, return filenames
+            let filenames = try sharedItem.images.map { imageData -> String in
+                let filename = UUID().uuidString + ".jpg"
+                let imageURL = getDocumentsURL().appendingPathComponent(filename)
+                try imageData.write(to: imageURL)
+                return filename
+            }
+
+            let savedItem = SavedItem(
+                id: sharedItem.id,
+                name: sharedItem.name,
+                creationDate: sharedItem.creationDate,
+                lastModifiedDate: sharedItem.lastModifiedDate,
+                notes: sharedItem.notes,
+                images: filenames,
+                link: sharedItem.link,
+                category: SavedItem.ItemCategory(rawValue: sharedItem.category) ?? .general
+            )
+
+            addItem(savedItem)
+
+            try FileManager.default.removeItem(at: fileURL) // clear after import
+        } catch {
+            print("Error importing shared item: \(error)")
+        }
+    }
+
 }
 
 
@@ -141,4 +180,6 @@ func load<T: Decodable>(_ filename: String) -> T {
         fatalError("Couldn't parse \(filename) as \(T.self):\n\(error)")
     }
 }
+
+
 

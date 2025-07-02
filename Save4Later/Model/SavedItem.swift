@@ -39,5 +39,3 @@ struct SavedItem: Codable, Hashable, Identifiable {
         case general = "General"
     }
 }
-
-
