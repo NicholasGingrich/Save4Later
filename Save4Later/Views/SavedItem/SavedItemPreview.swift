@@ -14,8 +14,9 @@ struct SavedItemPreview: View {
             
             Text(savedItem.name)
                 .foregroundStyle(.primary)
-                .font(.caption)
                 .lineLimit(1)
+                .font(.custom("OpenSans-Regular", size: 11))
+                .fontWeight(.semibold)
         }
         .frame(maxWidth: 155)
     }

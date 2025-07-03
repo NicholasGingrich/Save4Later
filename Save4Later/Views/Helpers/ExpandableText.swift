@@ -10,7 +10,7 @@ struct ExpandableText: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(text)
-                .font(.subheadline)
+                .font(.custom("OpenSans-Regular", size: 16))
                 .padding(.leading)
                 .padding(.top, 0.1)
                 .lineLimit(expanded ? nil : 2)

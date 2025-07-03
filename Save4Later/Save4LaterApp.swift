@@ -7,6 +7,7 @@ struct Save4LaterApp: App {
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
+                .font(.custom("OpenSans-Regular", size: 16)) // Adjust as needed
         }
     }
 }

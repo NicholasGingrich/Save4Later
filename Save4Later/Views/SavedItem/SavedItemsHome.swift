@@ -7,27 +7,32 @@ struct SavedItemsHome: View {
     var body: some View {
         NavigationSplitView {
             List {
-                modelData.savedItems.first?.previewImage
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 200)
-                    .clipped()
-                    .listRowInsets(EdgeInsets())
+                SlideshowView()
 
                 ForEach(modelData.categories.keys.sorted(), id: \.self) { category in
                     SavedItemHomeRow(categoryName: category, rowItems: modelData.categories[category]!)
                 }
                 .listRowInsets(EdgeInsets())
             }
+            .padding(.top)
             .listStyle(.inset)
-            .navigationTitle("Saved")
             .toolbar {
-                Button {
-                    showingCreateScreen.toggle()
-                } label: {
-                    Label("Add New Saved Item", systemImage: "plus")
+                ToolbarItem(placement: .principal) {
+                    Text("Saved")
+                        .font(.custom("OpenSans-Bold", size: 29))
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                        .padding()
+                }
+                ToolbarItem {
+                    Button {
+                        showingCreateScreen.toggle()
+                    } label: {
+                        Label("Add New Saved Item", systemImage: "plus")
+                    }
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingCreateScreen) {
                 SavedItemInfoForm(
                     sectionText: "Create New Item",

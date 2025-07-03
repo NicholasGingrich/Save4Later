@@ -7,7 +7,8 @@ struct SavedItemHomeRow: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(categoryName.capitalized)
-                .font(.headline)
+                .font(.custom("OpenSans-Regular", size: 16))
+                .fontWeight(.bold)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {

@@ -36,7 +36,7 @@ struct SavedItemDetail: View {
 
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(savedItem.name).font(.title2)
+                            Text(savedItem.name)                .font(.custom("OpenSans-Regular", size: 19)).fontWeight(.semibold)
                             Spacer()
                             Button {
                                 showEditScreen.toggle()
@@ -45,16 +45,20 @@ struct SavedItemDetail: View {
                             }
                         }
                         Text("Created on \(savedItem.creationDate)")
-                            .font(.subheadline)
+                            .font(.custom("OpenSans-Regular", size: 13))
+                            .fontWeight(.medium)
                             .foregroundColor(Color.gray)
                         Text("\(savedItem.category)".titleCased)
-                            .font(.subheadline)
+                            .font(.custom("OpenSans-Regular", size: 15))
+                            .fontWeight(.medium)
                             .foregroundColor(Color.gray)
                     }
                     .padding()
 
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Text("Notes")
+                            .font(.custom("OpenSans-Regular", size: 16))
+                            .fontWeight(.bold)
                         ExpandableText(text: savedItem.notes)
                         Button(action: {
                             if let url = URL(string: savedItem.link) {
@@ -62,10 +66,12 @@ struct SavedItemDetail: View {
                             }
                         }) {
                             Text("Visit")
+                                .fontWeight(.semibold)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, minHeight: 40)
                                 .background(Color.blue)
                                 .cornerRadius(10)
+                                .font(.custom("OpenSans-Regular", size: 16))
                         }
                     }
                     .padding()
