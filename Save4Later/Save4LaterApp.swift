@@ -6,8 +6,7 @@ struct Save4LaterApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(modelData)
+            SplashScreenView()
         }
     }
 }
