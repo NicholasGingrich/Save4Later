@@ -6,11 +6,10 @@ struct SavedItem: Codable, Hashable, Identifiable {
     var creationDate: String
     var lastModifiedDate: String
     var notes: String
-    var images: [String] // Image file names stored to disk
+    var images: [String]
     var link: String
     var category: ItemCategory
 
-    // Use this in UI when showing image preview
     var previewImage: Image {
         if let first = images.first {
             if first.hasSuffix(".jpg") || first.hasSuffix(".png") {
@@ -21,7 +20,7 @@ struct SavedItem: Codable, Hashable, Identifiable {
                     return Image(uiImage: uiImage)
                 }
             }
-            return Image(first) // fallback to asset
+            return Image(first) 
         }
         return Image(systemName: "photo")
     }

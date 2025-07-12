@@ -17,7 +17,6 @@ class ModelData {
             by: { $0.category.rawValue }
         )    }
 
-    // MARK: - Disk URLs
 
     private func getDocumentsURL() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -26,8 +25,6 @@ class ModelData {
     private func savedItemsURL() -> URL {
         getDocumentsURL().appendingPathComponent("savedItems.json")
     }
-
-    // MARK: - Save image to disk, return filename
 
     func saveImageToDocuments(_ uiImage: UIImage) throws -> String {
         let filename = UUID().uuidString + ".jpg"
@@ -38,30 +35,24 @@ class ModelData {
         try data.write(to: url)
         return filename
     }
-
-    // MARK: - Load image from filename
     
     func loadImageFromDocuments(_ filename: String) -> Image? {
         let url = getDocumentsURL().appendingPathComponent(filename)
         if let data = try? Data(contentsOf: url),
            let uiImage = UIImage(data: data) {
-            return Image(uiImage: uiImage)   // <-- returns Image
+            return Image(uiImage: uiImage)
         }
         return nil
     }
-
 
     func loadUIImageFromDocuments(_ filename: String) -> UIImage? {
         let url = getDocumentsURL().appendingPathComponent(filename)
         if let data = try? Data(contentsOf: url),
            let uiImage = UIImage(data: data) {
-            return uiImage   // <-- return UIImage directly
+            return uiImage
         }
         return nil
     }
-
-
-    // MARK: - Load and save savedItems JSON
 
     func loadSavedItems() {
         let decoder = JSONDecoder()
@@ -129,7 +120,6 @@ class ModelData {
             let data = try Data(contentsOf: fileURL)
             let sharedItem = try JSONDecoder().decode(SharedSavedItem.self, from: data)
 
-            // Save images to disk, return filenames
             let filenames = try sharedItem.images.map { imageData -> String in
                 let filename = UUID().uuidString + ".jpg"
                 let imageURL = getDocumentsURL().appendingPathComponent(filename)
@@ -150,14 +140,13 @@ class ModelData {
 
             addItem(savedItem)
 
-            try FileManager.default.removeItem(at: fileURL) // clear after import
+            try FileManager.default.removeItem(at: fileURL)
         } catch {
             print("Error importing shared item: \(error)")
         }
     }
 
 }
-
 
 func load<T: Decodable>(_ filename: String) -> T {
     let data: Data

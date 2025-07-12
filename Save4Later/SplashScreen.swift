@@ -22,25 +22,16 @@ struct SplashScreenView: View {
                         .scaleEffect(scale)
                         .offset(x: offsetX)
                         .onAppear {
-                            // Step 1: Bounce grow
                             withAnimation(.smooth()) {
                                 scale = 1.0
                             }
-                            
-                            for family in UIFont.familyNames.sorted() {
-                                let names = UIFont.fontNames(forFamilyName: family)
-                                print("Family: \(family) Font names: \(names)")
-                            }
 
-                            // Step 2: Wait 1 second after bounce
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                // Step 3: Slide left off screen
                                 withAnimation(.easeInOut(duration: 0.4)) {
                                     offsetX = -geometry.size.width
                                 }
                             }
 
-                            // Step 4: Overlap transition slightly for smooth feel
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2.3) {
                                 withAnimation {
                                     isActive = true
@@ -57,5 +48,5 @@ struct SplashScreenView: View {
 
 #Preview {
     SplashScreenView()
-        .font(.custom("OpenSans-Regular", size: 16)) // Adjust as needed
+        .font(.custom("OpenSans-Regular", size: 16))
 }
