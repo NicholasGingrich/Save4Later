@@ -31,6 +31,16 @@ struct ShareFormView: View {
         self.initialImage = initialImage
         self.initialLink = initialLink
     }
+    
+    
+    func postDataUpdatedNotification() {
+        CFNotificationCenterPostNotification(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            CFNotificationName("com.save4later.dataUpdated" as CFString),
+            nil, nil,
+            true
+        )
+    }
 
     var body: some View {
         Form {
@@ -66,9 +76,10 @@ struct ShareFormView: View {
                 if !images.isEmpty {
                     ScrollView(.horizontal) {
                         HStack(spacing: 15) {
-                            ForEach(images.indices, id: \.self) { index in
+                            // Bug fix: use enumerated() so index stays valid during rapid deletions
+                            ForEach(Array(images.enumerated()), id: \.offset) { index, image in
                                 ZStack(alignment: .topTrailing) {
-                                    Image(uiImage: images[index])
+                                    Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 100, height: 100)
@@ -76,6 +87,7 @@ struct ShareFormView: View {
                                         .cornerRadius(8)
 
                                     Button(action: {
+                                        guard index < images.count else { return }
                                         images.remove(at: index)
                                     }) {
                                         Image(systemName: "xmark.circle.fill")
@@ -93,29 +105,49 @@ struct ShareFormView: View {
             }
 
             Section {
+                // Bug fix: disable Save when name is blank
                 Button("Save Item") {
                     let now = Date().ISO8601Format()
                     let item = SharedSavedItem(
-                        id: Int.random(in: 1000...9999),
+                        // Bug fix: larger ID space to minimise collision risk
+                        id: Int.random(in: 1_000_000...9_999_999),
                         name: name,
                         creationDate: now,
                         lastModifiedDate: now,
                         notes: note,
                         images: images.compactMap { $0.jpegData(compressionQuality: 0.8) },
-                        link: link,
+                        link: link.trimmingCharacters(in: .whitespacesAndNewlines),
                         category: category
                     )
 
-                    if let data = try? JSONEncoder().encode(item) {
-                        let groupURL = FileManager.default
-                            .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later")!
+                    do {
+                        let data = try JSONEncoder().encode(item)
+                        // Bug fix: guard against misconfigured app group instead of force-unwrapping
+                        guard let groupURL = FileManager.default
+                            .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later") else {
+                            print("[Extension] ❌ Could not access app group container 'group.save4later'")
+                            return
+                        }
+                        print("[Extension] Group container URL: \(groupURL.path)")
+
                         let fileURL = groupURL.appendingPathComponent("savedItemToImport.json")
-                        try? data.write(to: fileURL)
+                        print("[Extension] About to write shared item JSON to: \(fileURL.path)")
+
+                        try data.write(to: fileURL, options: .atomic)
+                        print("[Extension] ✅ Successfully wrote shared item at \(Date())")
+
+                        postDataUpdatedNotification()
+                        print("[Extension] 📢 Posted Darwin notification: com.save4later.dataUpdated")
+
+                    } catch {
+                        print("[Extension] ❌ Error encoding or writing shared item: \(error)")
                     }
 
                     onSave?()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
+                // Bug fix: prevent saving items with no name
+                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
         .onChange(of: selectedImages) {

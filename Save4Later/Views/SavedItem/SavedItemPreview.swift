@@ -24,6 +24,13 @@ struct SavedItemPreview: View {
 
 #Preview {
     let modelData = ModelData()
-    return SavedItemPreview(savedItem: modelData.savedItems[3])
-        .environment(ModelData())
+    // Bug fix: guard against hardcoded index being out of bounds
+    let item = modelData.savedItems.indices.contains(3)
+        ? modelData.savedItems[3]
+        : modelData.savedItems.first ?? SavedItem(
+            id: 0, name: "Preview", creationDate: "", lastModifiedDate: "",
+            notes: "", images: [], link: "", category: .general
+        )
+    return SavedItemPreview(savedItem: item)
+        .environment(modelData)
 }

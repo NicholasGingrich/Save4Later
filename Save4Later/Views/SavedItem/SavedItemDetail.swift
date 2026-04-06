@@ -3,7 +3,8 @@ import SwiftUI
 struct SavedItemDetail: View {
     @State private var showEditScreen: Bool = false
     @State private var wasDeleted = false
-    
+    @State private var showInvalidURLAlert = false
+
     @Environment(ModelData.self) private var modelData
     @Environment(\.dismiss) var dismiss
 
@@ -60,21 +61,30 @@ struct SavedItemDetail: View {
                             .font(.custom("OpenSans-Regular", size: 16))
                             .fontWeight(.bold)
                         ExpandableText(text: savedItem.notes)
-                        Button(action: {
-                            if let url = URL(string: savedItem.link) {
-                                UIApplication.shared.open(url)
+
+                        // Conditionally show the Visit button
+                        if !savedItem.link.isEmpty {
+                            Button(action: {
+                                // Bug fix: validate URL and give user feedback if it's malformed
+                                if let url = URL(string: savedItem.link),
+                                   UIApplication.shared.canOpenURL(url) {
+                                    UIApplication.shared.open(url)
+                                } else {
+                                    showInvalidURLAlert = true
+                                }
+                            }) {
+                                Text("Visit")
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity, minHeight: 40)
+                                    .background(Color.blue)
+                                    .cornerRadius(10)
+                                    .font(.custom("OpenSans-Regular", size: 16))
                             }
-                        }) {
-                            Text("Visit")
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity, minHeight: 40)
-                                .background(Color.blue)
-                                .cornerRadius(10)
-                                .font(.custom("OpenSans-Regular", size: 16))
                         }
                     }
                     .padding()
+
                 }
             }
         }
@@ -94,10 +104,21 @@ struct SavedItemDetail: View {
                 dismiss()
             }
         }
+        // Bug fix: alert user when the stored link can't be opened
+        .alert("Invalid Link", isPresented: $showInvalidURLAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("The link saved for this item doesn't appear to be a valid URL.")
+        }
     }
 }
 
 #Preview {
     let modelData = ModelData()
-    return SavedItemDetail(initialItem: modelData.savedItems[0]).environment(modelData)
+    // Bug fix: guard against empty sample data in preview
+    let item = modelData.savedItems.first ?? SavedItem(
+        id: 0, name: "Preview", creationDate: "", lastModifiedDate: "",
+        notes: "", images: [], link: "", category: .general
+    )
+    return SavedItemDetail(initialItem: item).environment(modelData)
 }

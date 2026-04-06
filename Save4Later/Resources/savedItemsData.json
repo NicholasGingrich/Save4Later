@@ -1,72 +1,32 @@
 [
   {
-    "id": 6,
-    "name": "Try mushroom risotto recipe",
-    "creationDate": "2025-06-21T00:00:00Z",
-    "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "TikTok chef made it look easy. Said arborio rice is key. And also said to stir constantly and add broth little by little for creaminess. It really takes patience.",
-    "images": ["Mushroom-Risotto-1", "Mushroom-Risotto-2"],
-    "link": "https://www.youtube.com/watch?v=V4gC2JDwQDE",
-    "category": "Recipes"
-  },
-  {
     "id": 1,
-    "name": "Everything Everywhere All At Once",
+    "name": "Interlaken, Switzerland Hike",
     "creationDate": "2025-06-21T00:00:00Z",
     "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "Recommended on TikTok as a mind-bending multiverse movie. Won several Oscars.",
-    "images": ["EEAAO"],
-    "link": "https://www.imdb.com/title/tt6710474/",
-    "category": "Movies"
-  },
-  {
-    "id": 2,
-    "name": "Sushi Nakazawa NYC",
-    "creationDate": "2025-06-21T00:00:00Z",
-    "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "Saw this on a foodie TikTok. Chef trained under Jiro! Make a reservation 2 weeks in advance.",
-    "images": ["Sushi-1", "Sushi-2"],
-    "link": "https://www.sushinakazawa.com/",
-    "category": "Restaurants"
-  },
-  {
-    "id": 3,
-    "name": "Learn 'Heather' by Conan Gray on guitar",
-    "creationDate": "2025-06-21T00:00:00Z",
-    "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "Nice fingerpicking technique shown in tutorial. Good beginner-to-intermediate level.",
-    "images": ["heather-tab"],
-    "link": "https://www.youtube.com/watch?v=t9iW0A7xRyg",
-    "category": "Songs"
-  },
-  {
-    "id": 4,
-    "name": "Kyoto, Japan travel list",
-    "creationDate": "2025-06-21T00:00:00Z",
-    "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "Temples, tea houses, and that bamboo forest. Save for spring trip.",
-    "images": ["kyoto-1", "kyoto-2"],
-    "link": "https://www.japan.travel/en/destinations/kansai/kyoto/",
+    "notes": "Looks like a great hike. Cool ridge and 360 views.",
+    "images": ["switzerland", "switzerland-2"],
+    "link": "",
     "category": "Places"
   },
   {
-    "id": 5,
-    "name": "Inside Out 2",
+    "id": 2,
+    "name": "Chicken and Grape Pasts Salad",
     "creationDate": "2025-06-21T00:00:00Z",
     "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "Pixar sequel just hit theaters, looks super emotional.",
-    "images": ["inside-out-2"],
-    "link": "https://www.rottentomatoes.com/m/inside_out_2",
-    "category": "Movies"
+    "notes": "Saw this on a foodie TikTok. Chef trained under Jiro! Looks delicious.",
+    "images": ["chicken-grape-pasta"],
+    "link": "",
+    "category": "Recipes"
   },
   {
-    "id": 7,
-    "name": "Books recommended by Billie Eilish",
+    "id": 3,
+    "name": "Scallops & Risotto",
     "creationDate": "2025-06-21T00:00:00Z",
     "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "She mentioned 'The Bell Jar' and '1984' in an interview.",
-    "images": ["bell-jar-book", "1984-book"],
-    "link": "https://www.goodreads.com/list/show/151539.Billie_Eilish_s_Book_Recommendations",
-    "category": "Books"
+    "notes": "Had this at a restuarant and it was awesome! Need to make at home.",
+    "images": ["scallops-and-risotto"],
+    "link": "",
+    "category": "Recipes"
   }
 ]

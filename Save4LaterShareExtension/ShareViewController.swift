@@ -7,8 +7,14 @@ class ShareViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        extensionContext?.inputItems.forEach { item in
+            guard let input = item as? NSExtensionItem else { return }
+            input.attachments?.forEach { provider in
+                print("Registered Type Identifiers: \(provider.registeredTypeIdentifiers)")
+            }
+        }
 
-        // Optional: Blur background like native share sheet
         if !UIAccessibility.isReduceTransparencyEnabled {
             view.backgroundColor = .clear
             let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)

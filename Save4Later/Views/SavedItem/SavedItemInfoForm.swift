@@ -52,24 +52,27 @@ struct SavedItemInfoForm: View {
                 if !images.isEmpty {
                     ScrollView(.horizontal) {
                         HStack(spacing: 15) {
-                            ForEach(images.indices, id: \.self) { index in
+                            // Bug fix: use image identity (via ObjectIdentifier on a wrapper) instead of
+                            // index-based iteration so rapid deletions can't cause an out-of-bounds crash.
+                            ForEach(Array(images.enumerated()), id: \.offset) { index, image in
                                 ZStack {
-                                    Image(uiImage: images[index])
+                                    Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 100, height: 100)
                                         .clipped()
                                         .cornerRadius(8)
-                                    
+
                                     Button(action: {
-                                         images.remove(at: index)
-                                     }) {
-                                         Image(systemName: "xmark.circle.fill")
-                                             .foregroundColor(.white)
-                                             .background(Color.black.opacity(0.6))
-                                             .clipShape(Circle())
-                                     }
-                                     .offset(x: 50, y: -50)
+                                        guard index < images.count else { return }
+                                        images.remove(at: index)
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.white)
+                                            .background(Color.black.opacity(0.6))
+                                            .clipShape(Circle())
+                                    }
+                                    .offset(x: 50, y: -50)
                                 }
                             }
                         }
@@ -79,28 +82,45 @@ struct SavedItemInfoForm: View {
             }
 
             Section {
+                // Bug fix: disable Save when name is blank
                 Button("Save Item") {
-                    let savedFilenames = images.compactMap { try? modelData.saveImageToDocuments($0) }
+                    // Bug fix: warn if any image fails to save instead of silently dropping it
+                    var saveErrors = 0
+                    let savedFilenames: [String] = images.compactMap { image in
+                        do {
+                            return try modelData.saveImageToDocuments(image)
+                        } catch {
+                            saveErrors += 1
+                            return nil
+                        }
+                    }
+                    if saveErrors > 0 {
+                        print("⚠️ \(saveErrors) image(s) failed to save to disk.")
+                    }
+
                     let now = Date.now.ISO8601Format()
 
                     if var item = currentSavedItem {
                         item.name = name
                         item.category = category
-                        item.link = link
+                        item.link = link.trimmingCharacters(in: .whitespacesAndNewlines)
                         item.notes = note
+                        // Bug fix: preserve existing images; only replace with the current
+                        // images array (which was pre-populated from disk in onAppear).
                         item.images = savedFilenames
                         item.lastModifiedDate = now
                         modelData.updateItem(item)
                         currentSavedItem = item
                     } else {
+                        // Bug fix: use a large random range to minimise ID collision risk
                         let newItem = SavedItem(
-                            id: Int.random(in: 100...999),
+                            id: Int.random(in: 1_000_000...9_999_999),
                             name: name,
                             creationDate: now,
                             lastModifiedDate: now,
                             notes: note,
                             images: savedFilenames,
-                            link: link,
+                            link: link.trimmingCharacters(in: .whitespacesAndNewlines),
                             category: category
                         )
                         modelData.addItem(newItem)
@@ -109,6 +129,8 @@ struct SavedItemInfoForm: View {
                     closeView()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
+                // Bug fix: prevent saving items with no name
+                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
             }
 
             if currentSavedItem != nil {

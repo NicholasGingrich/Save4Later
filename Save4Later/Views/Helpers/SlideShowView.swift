@@ -24,6 +24,11 @@ struct SlideshowView: View {
         .onAppear {
             pickRandomImage()
         }
+        .onDisappear {
+            // Bug fix: cancel the timer when the view leaves the hierarchy to prevent
+            // a memory leak and unnecessary background work.
+            timer.upstream.connect().cancel()
+        }
         .onReceive(timer) { _ in
             withAnimation(.easeInOut(duration: 0.5)) {
                 pickRandomImage()

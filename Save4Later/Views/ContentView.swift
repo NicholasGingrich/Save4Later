@@ -11,12 +11,12 @@ struct ContentView: View {
                     modelData.importSharedItemIfAvailable()
                 }
             }
-            .font(.custom("OpenSans-Regular", size: 16)) // Adjust as needed
+            .font(.custom("OpenSans-Regular", size: 16))
     }
 }
 
 #Preview {
     ContentView()
         .environment(ModelData())
-        .font(.custom("OpenSans-Regular", size: 16)) // Adjust as needed
+        .font(.custom("OpenSans-Regular", size: 16))
 }

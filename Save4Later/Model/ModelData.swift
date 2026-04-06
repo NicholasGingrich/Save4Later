@@ -3,12 +3,48 @@ import UIKit
 
 import Foundation
 
+// Weak wrapper so the Darwin C callback (which can't capture Swift closures with
+// weak refs directly) has a safe way to reach the current ModelData instance.
+private class WeakModelDataBox {
+    weak var value: ModelData?
+    init(_ value: ModelData) { self.value = value }
+}
+private var sharedModelBox: WeakModelDataBox?
+
 @Observable
 class ModelData {
     var savedItems: [SavedItem] = []
 
     init() {
+        sharedModelBox = WeakModelDataBox(self)
         loadSavedItems()
+        startObservingSharedData()
+    }
+
+    deinit {
+        CFNotificationCenterRemoveObserver(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            Unmanaged.passRetained(self).toOpaque(),
+            CFNotificationName("com.save4later.dataUpdated" as CFString),
+            nil
+        )
+    }
+
+    private func startObservingSharedData() {
+        let notificationName = "com.save4later.dataUpdated" as CFString
+
+        CFNotificationCenterAddObserver(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            nil,
+            { _, _, _, _, _ in
+                DispatchQueue.main.async {
+                    sharedModelBox?.value?.importSharedItemIfAvailable()
+                }
+            },
+            notificationName,
+            nil,
+            .deliverImmediately
+        )
     }
     
     var categories: [String: [SavedItem]] {
@@ -74,44 +110,57 @@ class ModelData {
         }
     }
 
-    func saveToDisk() {
+    // Bug fix: returns Bool so callers can roll back in-memory changes on failure
+    @discardableResult
+    func saveToDisk() -> Bool {
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
             encoder.dateEncodingStrategy = .iso8601
             let data = try encoder.encode(savedItems)
             try data.write(to: savedItemsURL())
-            print("Here we are saving to disk. Here is the data we are saving: \(data)")
+            return true
         } catch {
             print("❌ Failed to save savedItems.json to disk: \(error)")
+            return false
         }
     }
 
     func addItem(_ item: SavedItem) {
         savedItems.append(item)
-        saveToDisk()
-    }
-    
-    func removeItem(_ item: SavedItem) {
-        print("here we are removing the item \(item)")
-
-        if let index = savedItems.firstIndex(where: { $0.id == item.id }) {
-            print("In the let statement. here we are removing the item \(item)")
-            savedItems.remove(at: index)
-            saveToDisk()
+        // Bug fix: roll back in-memory change if disk write fails
+        if !saveToDisk() {
+            savedItems.removeLast()
         }
     }
-    
+
+    func removeItem(_ item: SavedItem) {
+        guard let index = savedItems.firstIndex(where: { $0.id == item.id }) else { return }
+        let removed = savedItems[index]
+        savedItems.remove(at: index)
+        // Bug fix: roll back removal if disk write fails
+        if !saveToDisk() {
+            savedItems.insert(removed, at: index)
+        }
+    }
+
     func updateItem(_ updatedItem: SavedItem) {
-        if let index = savedItems.firstIndex(where: { $0.id == updatedItem.id }) {
-            savedItems[index] = updatedItem
-            saveToDisk()
+        guard let index = savedItems.firstIndex(where: { $0.id == updatedItem.id }) else { return }
+        let previous = savedItems[index]
+        savedItems[index] = updatedItem
+        // Bug fix: roll back update if disk write fails
+        if !saveToDisk() {
+            savedItems[index] = previous
         }
     }
     
     func importSharedItemIfAvailable() {
-        let groupURL = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later")!
+        // Bug fix: guard against misconfigured app group instead of force-unwrapping
+        guard let groupURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later") else {
+            print("❌ Could not access app group container 'group.save4later'")
+            return
+        }
         let fileURL = groupURL.appendingPathComponent("savedItemToImport.json")
 
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
@@ -138,7 +187,13 @@ class ModelData {
                 category: SavedItem.ItemCategory(rawValue: sharedItem.category) ?? .general
             )
 
-            addItem(savedItem)
+            // Bug fix: avoid duplicates if the same item is shared twice
+            if let existingIndex = savedItems.firstIndex(where: { $0.id == savedItem.id }) {
+                savedItems[existingIndex] = savedItem
+                saveToDisk()
+            } else {
+                addItem(savedItem)
+            }
 
             try FileManager.default.removeItem(at: fileURL)
         } catch {
