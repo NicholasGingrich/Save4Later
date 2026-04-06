@@ -5,12 +5,14 @@ struct SplashScreenView: View {
     @State private var modelData = ModelData()
     @State private var scale: CGFloat = 0.3
     @State private var offsetX: CGFloat = 0
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        if isActive {
-            ContentView()
-                .environment(modelData)
-        } else {
+        Group {
+            if isActive {
+                ContentView()
+                    .environment(modelData)
+            } else {
             GeometryReader { geometry in
                 VStack {
                     Image("4L")
@@ -41,6 +43,15 @@ struct SplashScreenView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.black)
+            }
+            }  // end else
+        }  // end Group
+        // Fix: observer lives here (always in the hierarchy) rather than in ContentView,
+        // so shared items are picked up whenever the app becomes active — even during the
+        // splash animation or if ContentView temporarily leaves the view tree.
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                modelData.importSharedItemIfAvailable()
             }
         }
     }
