@@ -14,80 +14,132 @@ struct SavedItemDetail: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack(alignment: .leading, spacing: -10) {
-                    ScrollView(.horizontal, showsIndicators: true) {
-                        HStack(spacing: 0) {
-                            ForEach(savedItem.images, id: \.self) { name in
-                                if let image = modelData.loadImageFromDocuments(name) {
-                                    RoundedImage(image: image)
-                                        .frame(width: geometry.size.width * 0.92, height: geometry.size.height * 0.7)
-                                        .clipped()
-                                        .padding(.horizontal)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+
+                // ── Image carousel ──────────────────────────────────────
+                if !savedItem.images.isEmpty {
+                    TabView {
+                        ForEach(savedItem.images, id: \.self) { name in
+                            Group {
+                                if let img = modelData.loadImageFromDocuments(name) {
+                                    img.resizable().scaledToFill()
                                 } else {
-                                    RoundedImage(image: Image(name))
-                                        .frame(width: geometry.size.width * 0.92, height: geometry.size.height * 0.7)
-                                        .clipped()
-                                        .padding(.horizontal)
+                                    Image(name).resizable().scaledToFill()
                                 }
                             }
+                            .clipped()
                         }
                     }
+                    .tabViewStyle(.page(indexDisplayMode: .automatic))
+                    .frame(height: 300)
+                    .clipped()
+                } else {
+                    // Placeholder when no images
+                    ZStack {
+                        LinearGradient(
+                            colors: [Color.s4lAccent.opacity(0.35), Color.s4lAccent.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        Image(systemName: "photo")
+                            .font(.system(size: 52))
+                            .foregroundColor(.white.opacity(0.4))
+                    }
+                    .frame(height: 200)
+                }
 
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(savedItem.name)                .font(.custom("OpenSans-Regular", size: 19)).fontWeight(.semibold)
-                            Spacer()
-                            Button {
-                                showEditScreen.toggle()
-                            } label: {
-                                Image(systemName: "pencil.circle.fill")
-                            }
-                        }
-                        Text("Created on \(savedItem.creationDate)")
-                            .font(.custom("OpenSans-Regular", size: 13))
-                            .fontWeight(.medium)
-                            .foregroundColor(Color.gray)
+                // ── Info block ──────────────────────────────────────────
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .top) {
+                        // Category pill
                         Text(savedItem.category.titleCased)
-                            .font(.custom("OpenSans-Regular", size: 15))
-                            .fontWeight(.medium)
-                            .foregroundColor(Color.gray)
-                    }
-                    .padding()
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Notes")
-                            .font(.custom("OpenSans-Regular", size: 16))
+                            .font(.custom("OpenSans-Regular", size: 11))
                             .fontWeight(.bold)
-                        ExpandableText(text: savedItem.notes)
+                            .foregroundColor(Color.s4lAccent)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
+                            .background(Color.s4lAccentLight)
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(Color.s4lAccent.opacity(0.25), lineWidth: 1))
 
-                        // Conditionally show the Visit button
-                        if !savedItem.link.isEmpty {
-                            Button(action: {
-                                // Bug fix: validate URL and give user feedback if it's malformed
-                                if let url = URL(string: savedItem.link),
-                                   UIApplication.shared.canOpenURL(url) {
-                                    UIApplication.shared.open(url)
-                                } else {
-                                    showInvalidURLAlert = true
-                                }
-                            }) {
-                                Text("Visit")
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity, minHeight: 40)
-                                    .background(Color.blue)
-                                    .cornerRadius(10)
-                                    .font(.custom("OpenSans-Regular", size: 16))
-                            }
+                        Spacer()
+
+                        Button {
+                            showEditScreen.toggle()
+                        } label: {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(Color.s4lAccent)
                         }
                     }
-                    .padding()
 
+                    Text(savedItem.name)
+                        .font(.custom("OpenSans-Regular", size: 24))
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+
+                    Text("Saved \(savedItem.creationDate)")
+                        .font(.custom("OpenSans-Regular", size: 12))
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 16)
+
+                Divider().padding(.horizontal, 20)
+
+                // ── Notes ───────────────────────────────────────────────
+                if !savedItem.notes.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("NOTES")
+                            .font(.custom("OpenSans-Regular", size: 11))
+                            .fontWeight(.bold)
+                            .foregroundColor(.secondary)
+                            .tracking(1)
+
+                        ExpandableText(text: savedItem.notes)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+
+                    Divider().padding(.horizontal, 20)
+                }
+
+                // ── Visit button ─────────────────────────────────────────
+                if !savedItem.link.isEmpty {
+                    Button(action: {
+                        if let url = URL(string: savedItem.link),
+                           UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.open(url)
+                        } else {
+                            showInvalidURLAlert = true
+                        }
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.up.right.square.fill")
+                            Text("Visit")
+                                .fontWeight(.semibold)
+                        }
+                        .font(.custom("OpenSans-Regular", size: 16))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, minHeight: 52)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.s4lAccent, Color.s4lAccent.opacity(0.78)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(14)
+                        .shadow(color: Color.s4lAccent.opacity(0.35), radius: 8, x: 0, y: 4)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 20)
                 }
             }
         }
+        .ignoresSafeArea(edges: .top)
         .sheet(isPresented: $showEditScreen) {
             SavedItemInfoForm(
                 currentItem: savedItem,
@@ -100,11 +152,8 @@ struct SavedItemDetail: View {
             )
         }
         .onChange(of: wasDeleted) {
-            if wasDeleted {
-                dismiss()
-            }
+            if wasDeleted { dismiss() }
         }
-        // Bug fix: alert user when the stored link can't be opened
         .alert("Invalid Link", isPresented: $showInvalidURLAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -115,10 +164,9 @@ struct SavedItemDetail: View {
 
 #Preview {
     let modelData = ModelData()
-    // Bug fix: guard against empty sample data in preview
     let item = modelData.savedItems.first ?? SavedItem(
         id: 0, name: "Preview", creationDate: "", lastModifiedDate: "",
-        notes: "", images: [], link: "", category: "General"
+        notes: "Some notes here.", images: [], link: "https://apple.com", category: "General"
     )
     return SavedItemDetail(initialItem: item).environment(modelData)
 }

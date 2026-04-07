@@ -101,35 +101,47 @@ struct ShareFormView: View {
                     .autocapitalization(.none)
             }
             .sheet(isPresented: $showingNewCategorySheet) {
-                NavigationStack {
-                    Form {
-                        Section(header: Text("Category Name")) {
-                            TextField("e.g. Podcasts", text: $newCategoryName)
-                                .autocapitalization(.words)
+                VStack(spacing: 20) {
+                    Text("New Category")
+                        .font(.headline)
+                        .padding(.top, 24)
+
+                    TextField("e.g. Podcasts", text: $newCategoryName)
+                        .autocapitalization(.words)
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(10)
+                        .padding(.horizontal)
+
+                    HStack(spacing: 12) {
+                        Button("Cancel") {
+                            newCategoryName = ""
+                            showingNewCategorySheet = false
                         }
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(10)
+
+                        Button("Add") {
+                            let trimmed = newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+                            saveCustomCategory(trimmed)
+                            category = trimmed
+                            newCategoryName = ""
+                            showingNewCategorySheet = false
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            ? Color.gray.opacity(0.3)
+                            : Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .disabled(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
-                    .navigationTitle("New Category")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                newCategoryName = ""
-                                showingNewCategorySheet = false
-                            }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Add") {
-                                let trimmed = newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-                                saveCustomCategory(trimmed)
-                                category = trimmed
-                                newCategoryName = ""
-                                showingNewCategorySheet = false
-                            }
-                            .disabled(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        }
-                    }
+                    .padding(.horizontal)
+
+                    Spacer()
                 }
-                .presentationDetents([.height(200)])
+                .presentationDetents([.height(220)])
             }
 
             Section(header: Text("Note")) {

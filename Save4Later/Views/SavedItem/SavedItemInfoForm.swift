@@ -57,35 +57,48 @@ struct SavedItemInfoForm: View {
                     .autocapitalization(.none)
             }
             .sheet(isPresented: $showingNewCategorySheet) {
-                NavigationStack {
-                    Form {
-                        Section(header: Text("Category Name")) {
-                            TextField("e.g. Podcasts", text: $newCategoryName)
-                                .autocapitalization(.words)
+                VStack(spacing: 20) {
+                    Text("New Category")
+                        .font(.custom("OpenSans-Regular", size: 17))
+                        .fontWeight(.bold)
+                        .padding(.top, 24)
+
+                    TextField("e.g. Podcasts", text: $newCategoryName)
+                        .autocapitalization(.words)
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(10)
+                        .padding(.horizontal)
+
+                    HStack(spacing: 12) {
+                        Button("Cancel") {
+                            newCategoryName = ""
+                            showingNewCategorySheet = false
                         }
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(10)
+
+                        Button("Add") {
+                            let trimmed = newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+                            modelData.addCustomCategory(trimmed)
+                            category = trimmed
+                            newCategoryName = ""
+                            showingNewCategorySheet = false
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            ? Color.gray.opacity(0.3)
+                            : Color.s4lAccent)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .disabled(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
-                    .navigationTitle("New Category")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                newCategoryName = ""
-                                showingNewCategorySheet = false
-                            }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Add") {
-                                let trimmed = newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
-                                modelData.addCustomCategory(trimmed)
-                                category = trimmed
-                                newCategoryName = ""
-                                showingNewCategorySheet = false
-                            }
-                            .disabled(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        }
-                    }
+                    .padding(.horizontal)
+
+                    Spacer()
                 }
-                .presentationDetents([.height(200)])
+                .presentationDetents([.height(220)])
             }
 
             Section(header: Text("Note")) {
@@ -131,9 +144,7 @@ struct SavedItemInfoForm: View {
             }
 
             Section {
-                // Bug fix: disable Save when name is blank
-                Button("Save Item") {
-                    // Bug fix: warn if any image fails to save instead of silently dropping it
+                Button(action: {
                     var saveErrors = 0
                     let savedFilenames: [String] = images.compactMap { image in
                         do {
@@ -154,14 +165,11 @@ struct SavedItemInfoForm: View {
                         item.category = category
                         item.link = link.trimmingCharacters(in: .whitespacesAndNewlines)
                         item.notes = note
-                        // Bug fix: preserve existing images; only replace with the current
-                        // images array (which was pre-populated from disk in onAppear).
                         item.images = savedFilenames
                         item.lastModifiedDate = now
                         modelData.updateItem(item)
                         currentSavedItem = item
                     } else {
-                        // Bug fix: use a large random range to minimise ID collision risk
                         let newItem = SavedItem(
                             id: Int.random(in: 1_000_000...9_999_999),
                             name: name,
@@ -174,12 +182,28 @@ struct SavedItemInfoForm: View {
                         )
                         modelData.addItem(newItem)
                     }
-
                     closeView()
+                }) {
+                    Text("Save Item")
+                        .font(.custom("OpenSans-Regular", size: 16))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .background {
+                            if name.trimmingCharacters(in: .whitespaces).isEmpty {
+                                Color.gray.opacity(0.4)
+                            } else {
+                                LinearGradient(
+                                    colors: [Color.s4lAccent, Color.s4lAccent.opacity(0.8)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            }
+                        }
+                        .cornerRadius(12)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                // Bug fix: prevent saving items with no name
                 .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
 
             if currentSavedItem != nil {

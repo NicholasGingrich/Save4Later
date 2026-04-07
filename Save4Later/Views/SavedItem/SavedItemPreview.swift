@@ -2,29 +2,53 @@ import SwiftUI
 
 struct SavedItemPreview: View {
     var savedItem: SavedItem
-    
+
+    private let cardWidth: CGFloat = 160
+    private let cardHeight: CGFloat = 210
+
     var body: some View {
-        VStack(alignment: .leading) {
+        ZStack(alignment: .bottomLeading) {
+            // Explicit frame on image so scaledToFill knows both dimensions
             savedItem.previewImage
                 .renderingMode(.original)
                 .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 155, height: 155)
-                .cornerRadius(5)
-            
-            Text(savedItem.name)
-                .foregroundStyle(.primary)
-                .lineLimit(1)
-                .font(.custom("OpenSans-Regular", size: 11))
-                .fontWeight(.semibold)
+                .scaledToFill()
+                .frame(width: cardWidth, height: cardHeight)
+                .clipped()
+
+            // Gradient scrim
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.72)],
+                startPoint: .center,
+                endPoint: .bottom
+            )
+            .frame(width: cardWidth, height: cardHeight)
+
+            // Name + category overlay
+            VStack(alignment: .leading, spacing: 3) {
+                Text(savedItem.category.uppercased())
+                    .font(.custom("OpenSans-Regular", size: 9))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white.opacity(0.75))
+                    .tracking(0.8)
+
+                Text(savedItem.name)
+                    .font(.custom("OpenSans-Regular", size: 12))
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(10)
         }
-        .frame(maxWidth: 155)
+        .frame(width: cardWidth, height: cardHeight)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.18), radius: 10, x: 0, y: 5)
     }
 }
 
 #Preview {
     let modelData = ModelData()
-    // Bug fix: guard against hardcoded index being out of bounds
     let item = modelData.savedItems.indices.contains(3)
         ? modelData.savedItems[3]
         : modelData.savedItems.first ?? SavedItem(
@@ -33,4 +57,5 @@ struct SavedItemPreview: View {
         )
     return SavedItemPreview(savedItem: item)
         .environment(modelData)
+        .padding()
 }

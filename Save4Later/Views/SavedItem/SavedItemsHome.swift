@@ -8,52 +8,59 @@ struct SavedItemsHome: View {
         NavigationSplitView {
             List {
                 if modelData.savedItems.isEmpty {
-                    // Bug fix: show helpful empty state instead of a blank list
-                    VStack(spacing: 12) {
-                        Image(systemName: "bookmark.slash")
-                            .font(.system(size: 48))
-                            .foregroundColor(.gray)
+                    VStack(spacing: 16) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.s4lAccentLight)
+                                .frame(width: 90, height: 90)
+                            Image(systemName: "bookmark.slash")
+                                .font(.system(size: 36))
+                                .foregroundColor(Color.s4lAccent)
+                        }
                         Text("Nothing saved yet")
-                            .font(.custom("OpenSans-Regular", size: 18))
-                            .fontWeight(.semibold)
+                            .font(.custom("OpenSans-Regular", size: 20))
+                            .fontWeight(.bold)
                         Text("Tap + to save your first item, or share a link from any app.")
                             .font(.custom("OpenSans-Regular", size: 14))
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 40)
+                    .padding(.top, 80)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 } else {
                     SlideshowView()
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
 
                     ForEach(modelData.categories.keys.sorted(), id: \.self) { category in
-                        // Fix: safe subscript so a final render pass after deletion can't crash
                         if let rowItems = modelData.categories[category] {
                             SavedItemHomeRow(categoryName: category, rowItems: rowItems)
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .listRowInsets(EdgeInsets())
                         }
                     }
-                    .listRowInsets(EdgeInsets())
                 }
             }
-            .padding(.top)
-            .listStyle(.inset)
+            .listStyle(.plain)
+            .navigationTitle("Saved")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Saved")
-                        .font(.custom("OpenSans-Bold", size: 29))
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                        .padding()
-                }
-                ToolbarItem {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingCreateScreen.toggle()
                     } label: {
-                        Label("Add New Saved Item", systemImage: "plus")
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(Color.s4lAccent)
                     }
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingCreateScreen) {
                 SavedItemInfoForm(
                     sectionText: "Create New Item",
@@ -61,7 +68,14 @@ struct SavedItemsHome: View {
                 )
             }
         } detail: {
-            Text("Select a saved item to view")
+            VStack(spacing: 12) {
+                Image(systemName: "arrow.left")
+                    .font(.system(size: 32))
+                    .foregroundColor(Color.s4lAccent.opacity(0.4))
+                Text("Select an item to view")
+                    .font(.custom("OpenSans-Regular", size: 16))
+                    .foregroundColor(.secondary)
+            }
         }
     }
 }
