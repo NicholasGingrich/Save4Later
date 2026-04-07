@@ -12,11 +12,13 @@ struct SavedItemInfoForm: View {
     var onDelete: () -> Void = {}
 
     @State private var name: String = ""
-    @State private var category: SavedItem.ItemCategory = .general
+    @State private var category: String = SavedItem.ItemCategory.general.rawValue
     @State private var link: String = ""
     @State private var note: String = ""
     @State private var selectedImages: [PhotosPickerItem] = []
     @State private var images: [UIImage] = []
+    @State private var showingNewCategorySheet = false
+    @State private var newCategoryName = ""
 
     init(currentItem: SavedItem? = nil, sectionText: String, closeView: @escaping () -> Void, onDelete: @escaping () -> Void = {}) {
         self.currentSavedItem = currentItem
@@ -29,14 +31,61 @@ struct SavedItemInfoForm: View {
         Form {
             Section(header: Text(sectionText)) {
                 TextField("Name", text: $name)
+
                 Picker("Category", selection: $category) {
-                    ForEach(SavedItem.ItemCategory.allCases, id: \.self) { category in
-                        Text(category.rawValue)
+                    ForEach(SavedItem.ItemCategory.allCases, id: \.rawValue) { cat in
+                        Text(cat.rawValue).tag(cat.rawValue)
+                    }
+                    if !modelData.customCategories.isEmpty {
+                        Divider()
+                        ForEach(modelData.customCategories, id: \.self) { cat in
+                            Text(cat).tag(cat)
+                        }
                     }
                 }
+
+                Button {
+                    newCategoryName = ""
+                    showingNewCategorySheet = true
+                } label: {
+                    Label("Add New Category", systemImage: "plus.circle")
+                        .font(.custom("OpenSans-Regular", size: 15))
+                }
+
                 TextField("Link", text: $link)
                     .keyboardType(.URL)
                     .autocapitalization(.none)
+            }
+            .sheet(isPresented: $showingNewCategorySheet) {
+                NavigationStack {
+                    Form {
+                        Section(header: Text("Category Name")) {
+                            TextField("e.g. Podcasts", text: $newCategoryName)
+                                .autocapitalization(.words)
+                        }
+                    }
+                    .navigationTitle("New Category")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                newCategoryName = ""
+                                showingNewCategorySheet = false
+                            }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Add") {
+                                let trimmed = newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                modelData.addCustomCategory(trimmed)
+                                category = trimmed
+                                newCategoryName = ""
+                                showingNewCategorySheet = false
+                            }
+                            .disabled(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                    }
+                }
+                .presentationDetents([.height(200)])
             }
 
             Section(header: Text("Note")) {

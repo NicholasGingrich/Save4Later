@@ -49,7 +49,7 @@ struct SavedItemDetail: View {
                             .font(.custom("OpenSans-Regular", size: 13))
                             .fontWeight(.medium)
                             .foregroundColor(Color.gray)
-                        Text("\(savedItem.category)".titleCased)
+                        Text(savedItem.category.titleCased)
                             .font(.custom("OpenSans-Regular", size: 15))
                             .fontWeight(.medium)
                             .foregroundColor(Color.gray)
@@ -118,7 +118,7 @@ struct SavedItemDetail: View {
     // Bug fix: guard against empty sample data in preview
     let item = modelData.savedItems.first ?? SavedItem(
         id: 0, name: "Preview", creationDate: "", lastModifiedDate: "",
-        notes: "", images: [], link: "", category: .general
+        notes: "", images: [], link: "", category: "General"
     )
     return SavedItemDetail(initialItem: item).environment(modelData)
 }

@@ -14,11 +14,15 @@ struct ShareFormView: View {
     var initialLink: String
     var initialImage: UIImage?
 
-    private let categories = [
+    @State private var showingNewCategorySheet = false
+    @State private var newCategoryName = ""
+    @State private var customCategories: [String] = []
+
+    private let builtInCategories = [
         "General", "Recipes", "Books", "Articles", "Songs",
         "Shows", "Movies", "Restaurants", "Places", "Activities"
     ]
-    
+
     init(name: String = "", category: String = "General", link: String = "", note: String = "", selectedImages: [PhotosPickerItem] = [], images: [UIImage] = [], sectionText: String, onSave: (() -> Void)? = nil, initialLink: String = "", initialImage: UIImage? = nil) {
         self.name = name
         self.category = category
@@ -30,6 +34,32 @@ struct ShareFormView: View {
         self.onSave = onSave
         self.initialImage = initialImage
         self.initialLink = initialLink
+    }
+
+    // Reads custom categories written by the main app from the shared container.
+    private func loadCustomCategories() {
+        guard let groupURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later") else { return }
+        let url = groupURL.appendingPathComponent("customCategories.json")
+        guard FileManager.default.fileExists(atPath: url.path),
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode([String].self, from: data) else { return }
+        customCategories = decoded
+    }
+
+    // Persists a newly created category so the main app picks it up on next foreground.
+    private func saveCustomCategory(_ name: String) {
+        guard let groupURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later") else { return }
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              !customCategories.contains(trimmed),
+              !builtInCategories.contains(trimmed) else { return }
+        customCategories.append(trimmed)
+        if let data = try? JSONEncoder().encode(customCategories) {
+            let url = groupURL.appendingPathComponent("customCategories.json")
+            try? data.write(to: url, options: .atomic)
+        }
     }
     
     
@@ -48,14 +78,58 @@ struct ShareFormView: View {
                 TextField("Name", text: $name)
 
                 Picker("Category", selection: $category) {
-                    ForEach(categories, id: \.self) {
-                        Text($0)
+                    ForEach(builtInCategories, id: \.self) { cat in
+                        Text(cat).tag(cat)
                     }
+                    if !customCategories.isEmpty {
+                        Divider()
+                        ForEach(customCategories, id: \.self) { cat in
+                            Text(cat).tag(cat)
+                        }
+                    }
+                }
+
+                Button {
+                    newCategoryName = ""
+                    showingNewCategorySheet = true
+                } label: {
+                    Label("Add New Category", systemImage: "plus.circle")
                 }
 
                 TextField("Link", text: $link)
                     .keyboardType(.URL)
                     .autocapitalization(.none)
+            }
+            .sheet(isPresented: $showingNewCategorySheet) {
+                NavigationStack {
+                    Form {
+                        Section(header: Text("Category Name")) {
+                            TextField("e.g. Podcasts", text: $newCategoryName)
+                                .autocapitalization(.words)
+                        }
+                    }
+                    .navigationTitle("New Category")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                newCategoryName = ""
+                                showingNewCategorySheet = false
+                            }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Add") {
+                                let trimmed = newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                saveCustomCategory(trimmed)
+                                category = trimmed
+                                newCategoryName = ""
+                                showingNewCategorySheet = false
+                            }
+                            .disabled(newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                    }
+                }
+                .presentationDetents([.height(200)])
             }
 
             Section(header: Text("Note")) {
@@ -159,6 +233,9 @@ struct ShareFormView: View {
                     }
                 }
             }
+        }
+        .onAppear {
+            loadCustomCategories()
         }
     }
 }

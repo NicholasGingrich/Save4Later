@@ -8,7 +8,10 @@ struct SavedItem: Codable, Hashable, Identifiable {
     var notes: String
     var images: [String]
     var link: String
-    var category: ItemCategory
+    // Changed from ItemCategory enum to String so custom categories can be stored.
+    // Existing JSON is backwards-compatible: enum raw values ("Recipes", "Books", etc.)
+    // decode identically as plain strings.
+    var category: String
 
     var previewImage: Image {
         if let first = images.first {

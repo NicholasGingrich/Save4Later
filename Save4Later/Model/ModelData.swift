@@ -14,10 +14,13 @@ private var sharedModelBox: WeakModelDataBox?
 @Observable
 class ModelData {
     var savedItems: [SavedItem] = []
+    /// User-created category names, persisted alongside saved items.
+    var customCategories: [String] = []
 
     init() {
         sharedModelBox = WeakModelDataBox(self)
         loadSavedItems()
+        loadCustomCategories()
         startObservingSharedData()
     }
 
@@ -48,10 +51,8 @@ class ModelData {
     }
     
     var categories: [String: [SavedItem]] {
-        Dictionary(
-            grouping: savedItems,
-            by: { $0.category.rawValue }
-        )    }
+        Dictionary(grouping: savedItems, by: { $0.category })
+    }
 
 
     private func getDocumentsURL() -> URL {
@@ -60,6 +61,41 @@ class ModelData {
 
     private func savedItemsURL() -> URL {
         getDocumentsURL().appendingPathComponent("savedItems.json")
+    }
+
+    // Custom categories are stored in the shared app group container so the
+    // share extension can also read and write them.
+    private func appGroupURL() -> URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.save4later")
+    }
+
+    private func customCategoriesURL() -> URL? {
+        appGroupURL()?.appendingPathComponent("customCategories.json")
+    }
+
+    func loadCustomCategories() {
+        guard let url = customCategoriesURL(),
+              FileManager.default.fileExists(atPath: url.path),
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode([String].self, from: data) else { return }
+        customCategories = decoded
+    }
+
+    private func saveCustomCategoriesToDisk() {
+        guard let url = customCategoriesURL(),
+              let data = try? JSONEncoder().encode(customCategories) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+
+    /// Adds a new custom category if it isn't blank and doesn't already exist.
+    func addCustomCategory(_ name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let builtIns = SavedItem.ItemCategory.allCases.map(\.rawValue)
+        guard !trimmed.isEmpty,
+              !customCategories.contains(trimmed),
+              !builtIns.contains(trimmed) else { return }
+        customCategories.append(trimmed)
+        saveCustomCategoriesToDisk()
     }
 
     func saveImageToDocuments(_ uiImage: UIImage) throws -> String {
@@ -184,8 +220,11 @@ class ModelData {
                 notes: sharedItem.notes,
                 images: filenames,
                 link: sharedItem.link,
-                category: SavedItem.ItemCategory(rawValue: sharedItem.category) ?? .general
+                category: sharedItem.category   // already a plain String — no enum conversion needed
             )
+
+            // Also refresh custom categories; the extension may have created new ones.
+            loadCustomCategories()
 
             // Bug fix: avoid duplicates if the same item is shared twice
             if let existingIndex = savedItems.firstIndex(where: { $0.id == savedItem.id }) {

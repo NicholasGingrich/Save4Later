@@ -29,7 +29,7 @@ struct SavedItemPreview: View {
         ? modelData.savedItems[3]
         : modelData.savedItems.first ?? SavedItem(
             id: 0, name: "Preview", creationDate: "", lastModifiedDate: "",
-            notes: "", images: [], link: "", category: .general
+            notes: "", images: [], link: "", category: "General"
         )
     return SavedItemPreview(savedItem: item)
         .environment(modelData)
