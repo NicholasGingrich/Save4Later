@@ -42,7 +42,7 @@ struct SplashScreenView: View {
                         }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.s4lBackground)
+                .background(Color.black)
             }
             }  // end else
         }  // end Group
