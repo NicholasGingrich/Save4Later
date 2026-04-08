@@ -8,6 +8,7 @@ struct SlideshowView: View {
 
     private let cardHeight: CGFloat = 230
 
+
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .bottomLeading) {
@@ -28,31 +29,30 @@ struct SlideshowView: View {
                     .frame(width: geo.size.width, height: cardHeight)
                 }
 
-                // Gradient scrim
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.6)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(width: geo.size.width, height: cardHeight)
-
-                // Item info overlay
+                // Item info overlay — frosted pill so text reads on any image
                 if let item = currentItem {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(item.category.uppercased())
                             .font(.custom("OpenSans-Regular", size: 10))
                             .fontWeight(.bold)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.white.opacity(0.8))
                             .tracking(1.2)
 
                         Text(item.name)
-                            .font(.custom("OpenSans-Regular", size: 20))
+                            .font(.custom("OpenSans-Regular", size: 18))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .lineLimit(2)
-                            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                     }
-                    .padding(18)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
+                            .opacity(0.55)
+                    )
+                    .padding(14)
                     .transition(.opacity)
                 }
             }

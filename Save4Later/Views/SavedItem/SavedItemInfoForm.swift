@@ -66,7 +66,7 @@ struct SavedItemInfoForm: View {
                     TextField("e.g. Podcasts", text: $newCategoryName)
                         .autocapitalization(.words)
                         .padding()
-                        .background(Color(.secondarySystemBackground))
+                        .background(Color.s4lSecondaryBackground)
                         .cornerRadius(10)
                         .padding(.horizontal)
 
@@ -76,7 +76,7 @@ struct SavedItemInfoForm: View {
                             showingNewCategorySheet = false
                         }
                         .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(Color(.secondarySystemBackground))
+                        .background(Color.s4lSecondaryBackground)
                         .cornerRadius(10)
 
                         Button("Add") {
@@ -98,6 +98,7 @@ struct SavedItemInfoForm: View {
 
                     Spacer()
                 }
+                .background(Color.s4lBackground)
                 .presentationDetents([.height(220)])
             }
 
@@ -223,6 +224,8 @@ struct SavedItemInfoForm: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.s4lBackground)
         .onChange(of: selectedImages) {
             Task {
                 for item in selectedImages {

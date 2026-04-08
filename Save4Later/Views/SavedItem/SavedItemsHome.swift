@@ -22,6 +22,8 @@ struct SavedItemsHome: View {
     }
 
     var body: some View {
+        ZStack {
+            Color.s4lBackground.ignoresSafeArea()
         NavigationSplitView {
             List {
                 if isSearching {
@@ -99,6 +101,10 @@ struct SavedItemsHome: View {
                 }
             }
             .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.s4lBackground)
+            .toolbarBackground(Color.s4lBackground, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Saved")
             .navigationBarTitleDisplayMode(.large)
             .searchable(text: $searchText, prompt: "Search items, categories, notes…")
@@ -128,7 +134,10 @@ struct SavedItemsHome: View {
                     .font(.custom("OpenSans-Regular", size: 16))
                     .foregroundColor(.secondary)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.s4lBackground)
         }
+        } // ZStack
     }
 }
 
@@ -177,7 +186,7 @@ struct SearchResultRow: View {
             Spacer()
         }
         .padding(12)
-        .background(Color(.secondarySystemBackground))
+        .background(Color.s4lSecondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }

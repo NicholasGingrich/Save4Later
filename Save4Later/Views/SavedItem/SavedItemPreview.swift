@@ -16,20 +16,12 @@ struct SavedItemPreview: View {
                 .frame(width: cardWidth, height: cardHeight)
                 .clipped()
 
-            // Gradient scrim
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.72)],
-                startPoint: .center,
-                endPoint: .bottom
-            )
-            .frame(width: cardWidth, height: cardHeight)
-
-            // Name + category overlay
+            // Name + category overlay — frosted pill so text reads on any image
             VStack(alignment: .leading, spacing: 3) {
                 Text(savedItem.category.uppercased())
                     .font(.custom("OpenSans-Regular", size: 9))
                     .fontWeight(.bold)
-                    .foregroundColor(.white.opacity(0.75))
+                    .foregroundColor(.white.opacity(0.8))
                     .tracking(0.8)
 
                 Text(savedItem.name)
@@ -39,7 +31,15 @@ struct SavedItemPreview: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(10)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.ultraThinMaterial)
+                    .environment(\.colorScheme, .dark)
+                    .opacity(0.55)
+            )
+            .padding(8)
         }
         .frame(width: cardWidth, height: cardHeight)
         .clipShape(RoundedRectangle(cornerRadius: 14))
