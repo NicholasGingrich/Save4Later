@@ -257,15 +257,29 @@ struct SearchResultCard: View {
 struct SearchResultRow: View {
     let item: SavedItem
     let query: String
+    private var hasPreviewImage: Bool { !item.images.isEmpty }
 
     var body: some View {
         HStack(spacing: 14) {
-            item.previewImage
-                .renderingMode(.original)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 56, height: 56)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+            ZStack {
+                if hasPreviewImage {
+                    item.previewImage
+                        .renderingMode(.original)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    LinearGradient(
+                        colors: [Color.s4lAccent.opacity(0.28), Color.s4lAccent.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    Image(systemName: "bookmark.square.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color.s4lAccent.opacity(0.82))
+                }
+            }
+            .frame(width: 56, height: 56)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.name)

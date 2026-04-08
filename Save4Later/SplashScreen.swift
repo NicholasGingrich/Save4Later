@@ -6,6 +6,7 @@ struct SplashScreenView: View {
     @State private var scale: CGFloat = 0.3
     @State private var offsetX: CGFloat = 0
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Group {
@@ -15,7 +16,7 @@ struct SplashScreenView: View {
             } else {
             GeometryReader { geometry in
                 VStack {
-                    Image("4L")
+                    Image(colorScheme == .dark ? "4L-dark-bg-variant" : "4L-light-bg-variant")
                         .resizable()
                         .scaledToFit()
                         .frame(height: 325)
@@ -42,7 +43,7 @@ struct SplashScreenView: View {
                         }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.black)
+                .background(Color.s4lBackground)
             }
             }  // end else
         }  // end Group
