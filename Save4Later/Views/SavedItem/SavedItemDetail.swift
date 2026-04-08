@@ -6,23 +6,37 @@ struct SavedItemDetail: View {
     @State private var showInvalidURLAlert = false
     @State private var selectedImageIndex = 0
     @State private var showFullScreenGallery = false
+    @State private var selectedItemID: Int
 
     @Environment(ModelData.self) private var modelData
     @Environment(\.dismiss) var dismiss
 
     let initialItem: SavedItem
-    var savedItem: SavedItem {
-        modelData.savedItems.first(where: { $0.id == initialItem.id }) ?? initialItem
+    var savedItems: [SavedItem] {
+        modelData.savedItems
     }
 
-    private var friendlyCreationDate: String {
+    init(initialItem: SavedItem) {
+        self.initialItem = initialItem
+        _selectedItemID = State(initialValue: initialItem.id)
+    }
+
+    private var currentItem: SavedItem {
+        savedItems.first(where: { $0.id == selectedItemID }) ?? initialItem
+    }
+
+    private var currentIndex: Int {
+        savedItems.firstIndex(where: { $0.id == selectedItemID }) ?? 0
+    }
+
+    private func friendlyCreationDate(for item: SavedItem) -> String {
         let iso = ISO8601DateFormatter()
         iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let date = iso.date(from: savedItem.creationDate)
-            ?? ISO8601DateFormatter().date(from: savedItem.creationDate)
+        let date = iso.date(from: item.creationDate)
+            ?? ISO8601DateFormatter().date(from: item.creationDate)
 
         guard let date else {
-            return savedItem.creationDate
+            return item.creationDate
         }
 
         let formatter = DateFormatter()
@@ -34,134 +48,54 @@ struct SavedItemDetail: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-
-                // ── Image carousel ──────────────────────────────────────
-                if !savedItem.images.isEmpty {
-                    TabView {
-                        ForEach(Array(savedItem.images.enumerated()), id: \.element) { index, name in
-                            Button {
-                                selectedImageIndex = index
-                                showFullScreenGallery = true
-                            } label: {
-                                Group {
-                                    if let img = modelData.loadImageFromDocuments(name) {
-                                        img.resizable().scaledToFill()
-                                    } else {
-                                        Image(name).resizable().scaledToFill()
-                                    }
-                                }
-                                .clipped()
-                            }
-                            .buttonStyle(.plain)
+        VStack(spacing: 0) {
+            if savedItems.isEmpty {
+                Color.s4lBackground.ignoresSafeArea()
+            } else {
+                TabView(selection: $selectedItemID) {
+                    ForEach(savedItems) { item in
+                        ScrollView {
+                            detailContent(for: item)
                         }
+                        .tag(item.id)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .automatic))
-                    .frame(height: 300)
-                    .clipped()
-                } else {
-                    // Placeholder when no images
-                    ZStack {
-                        LinearGradient(
-                            colors: [Color.s4lAccent.opacity(0.35), Color.s4lAccent.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        Image(systemName: "photo")
-                            .font(.system(size: 52))
-                            .foregroundColor(.white.opacity(0.4))
-                    }
-                    .frame(height: 200)
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
 
-                // ── Info block ──────────────────────────────────────────
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(alignment: .top) {
-                        // Category pill
-                        Text(savedItem.category.titleCased)
-                            .font(.custom("OpenSans-Regular", size: 11))
-                            .fontWeight(.bold)
-                            .foregroundColor(Color.s4lAccent)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 5)
-                            .background(Color.s4lAccentLight)
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color.s4lAccent.opacity(0.25), lineWidth: 1))
+                if savedItems.count > 1 {
+                    HStack(spacing: 20) {
+                        Button {
+                            let previous = max(currentIndex - 1, 0)
+                            withAnimation(.smooth()) {
+                                selectedItemID = savedItems[previous].id
+                            }
+                        } label: {
+                            Image(systemName: "arrow.left.circle.fill")
+                                .font(.system(size: 28))
+                                .symbolRenderingMode(.hierarchical)
+                        }
+                        .disabled(currentIndex == 0)
 
-                        Spacer()
+                        Text("\(currentIndex + 1) of \(savedItems.count)")
+                            .font(.custom("OpenSans-Regular", size: 13))
+                            .foregroundColor(.secondary)
 
                         Button {
-                            showEditScreen.toggle()
+                            let next = min(currentIndex + 1, savedItems.count - 1)
+                            withAnimation(.smooth()) {
+                                selectedItemID = savedItems[next].id
+                            }
                         } label: {
-                            Image(systemName: "pencil.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(Color.s4lAccent)
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.system(size: 28))
+                                .symbolRenderingMode(.hierarchical)
                         }
+                        .disabled(currentIndex == savedItems.count - 1)
                     }
-
-                    Text(savedItem.name)
-                        .font(.custom("OpenSans-Regular", size: 24))
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-
-                    Text("Saved \(friendlyCreationDate)")
-                        .font(.custom("OpenSans-Regular", size: 12))
-                        .foregroundColor(.secondary)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
-
-                Divider().padding(.horizontal, 20)
-
-                // ── Notes ───────────────────────────────────────────────
-                if !savedItem.notes.isEmpty {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("NOTES")
-                            .font(.custom("OpenSans-Regular", size: 11))
-                            .fontWeight(.bold)
-                            .foregroundColor(.secondary)
-                            .tracking(1)
-
-                        ExpandableText(text: savedItem.notes)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-
-                    Divider().padding(.horizontal, 20)
-                }
-
-                // ── Visit button ─────────────────────────────────────────
-                if !savedItem.link.isEmpty {
-                    Button(action: {
-                        if let url = URL(string: savedItem.link),
-                           UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.open(url)
-                        } else {
-                            showInvalidURLAlert = true
-                        }
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "arrow.up.right.square.fill")
-                            Text("Visit")
-                                .fontWeight(.semibold)
-                        }
-                        .font(.custom("OpenSans-Regular", size: 16))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, minHeight: 52)
-                        .background(
-                            LinearGradient(
-                                colors: [Color.s4lAccent, Color.s4lAccent.opacity(0.78)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(14)
-                        .shadow(color: Color.s4lAccent.opacity(0.35), radius: 8, x: 0, y: 4)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 20)
+                    .foregroundColor(Color.s4lAccent)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.s4lBackground)
                 }
             }
         }
@@ -170,7 +104,7 @@ struct SavedItemDetail: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .sheet(isPresented: $showEditScreen) {
             SavedItemInfoForm(
-                currentItem: savedItem,
+                currentItem: currentItem,
                 sectionText: "Edit Item",
                 closeView: { showEditScreen = false },
                 onDelete: {
@@ -178,6 +112,12 @@ struct SavedItemDetail: View {
                     showEditScreen = false
                 }
             )
+        }
+        .onChange(of: savedItems.count) {
+            if let first = savedItems.first,
+               !savedItems.contains(where: { $0.id == selectedItemID }) {
+                selectedItemID = first.id
+            }
         }
         .onChange(of: wasDeleted) {
             if wasDeleted { dismiss() }
@@ -189,10 +129,137 @@ struct SavedItemDetail: View {
         }
         .fullScreenCover(isPresented: $showFullScreenGallery) {
             FullScreenImageGallery(
-                imageNames: savedItem.images,
+                imageNames: currentItem.images,
                 startIndex: selectedImageIndex
             )
         }
+    }
+
+    @ViewBuilder
+    private func detailContent(for item: SavedItem) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if !item.images.isEmpty {
+                TabView {
+                    ForEach(Array(item.images.enumerated()), id: \.element) { index, name in
+                        Button {
+                            selectedImageIndex = index
+                            showFullScreenGallery = true
+                        } label: {
+                            Group {
+                                if let img = modelData.loadImageFromDocuments(name) {
+                                    img.resizable().scaledToFill()
+                                } else {
+                                    Image(name).resizable().scaledToFill()
+                                }
+                            }
+                            .clipped()
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .automatic))
+                .frame(height: 300)
+                .clipped()
+            } else {
+                ZStack {
+                    LinearGradient(
+                        colors: [Color.s4lAccent.opacity(0.35), Color.s4lAccent.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    Image(systemName: "photo")
+                        .font(.system(size: 52))
+                        .foregroundColor(.white.opacity(0.4))
+                }
+                .frame(height: 200)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top) {
+                    Text(item.category.titleCased)
+                        .font(.custom("OpenSans-Regular", size: 11))
+                        .fontWeight(.bold)
+                        .foregroundColor(Color.s4lAccent)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(Color.s4lAccentLight)
+                        .clipShape(Capsule())
+                        .overlay(Capsule().stroke(Color.s4lAccent.opacity(0.25), lineWidth: 1))
+
+                    Spacer()
+
+                    Button {
+                        showEditScreen.toggle()
+                    } label: {
+                        Image(systemName: "pencil.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(Color.s4lAccent)
+                    }
+                }
+
+                Text(item.name)
+                    .font(.custom("OpenSans-Regular", size: 24))
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+
+                Text("Saved \(friendlyCreationDate(for: item))")
+                    .font(.custom("OpenSans-Regular", size: 12))
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
+
+            Divider().padding(.horizontal, 20)
+
+            if !item.notes.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("NOTES")
+                        .font(.custom("OpenSans-Regular", size: 11))
+                        .fontWeight(.bold)
+                        .foregroundColor(.secondary)
+                        .tracking(1)
+
+                    ExpandableText(text: item.notes)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+
+                Divider().padding(.horizontal, 20)
+            }
+
+            if !item.link.isEmpty {
+                Button(action: {
+                    if let url = URL(string: item.link),
+                       UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url)
+                    } else {
+                        showInvalidURLAlert = true
+                    }
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.up.right.square.fill")
+                        Text("Visit")
+                            .fontWeight(.semibold)
+                    }
+                    .font(.custom("OpenSans-Regular", size: 16))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.s4lAccent, Color.s4lAccent.opacity(0.78)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(14)
+                    .shadow(color: Color.s4lAccent.opacity(0.35), radius: 8, x: 0, y: 4)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 20)
+            }
+        }
+        .background(Color.s4lBackground)
     }
 }
 
