@@ -15,6 +15,24 @@ struct SavedItemDetail: View {
         modelData.savedItems.first(where: { $0.id == initialItem.id }) ?? initialItem
     }
 
+    private var friendlyCreationDate: String {
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let date = iso.date(from: savedItem.creationDate)
+            ?? ISO8601DateFormatter().date(from: savedItem.creationDate)
+
+        guard let date else {
+            return savedItem.creationDate
+        }
+
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.timeZone = .current
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -87,7 +105,7 @@ struct SavedItemDetail: View {
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
 
-                    Text("Saved \(savedItem.creationDate)")
+                    Text("Saved \(friendlyCreationDate)")
                         .font(.custom("OpenSans-Regular", size: 12))
                         .foregroundColor(.secondary)
                 }
