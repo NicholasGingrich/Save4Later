@@ -11,54 +11,18 @@ struct SlideshowView: View {
 
     var body: some View {
         GeometryReader { geo in
-            ZStack(alignment: .bottomLeading) {
-                // Background — sized explicitly so scaledToFill knows both dimensions
-                if let image = currentImage {
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geo.size.width, height: cardHeight)
-                        .clipped()
-                        .transition(.opacity)
-                } else {
-                    LinearGradient(
-                        colors: [Color.s4lAccent.opacity(0.4), Color.s4lAccent.opacity(0.15)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .frame(width: geo.size.width, height: cardHeight)
-                }
-
-                // Item info overlay — frosted pill so text reads on any image
+            Group {
                 if let item = currentItem {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(item.category.uppercased())
-                            .font(.custom("OpenSans-Regular", size: 10))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white.opacity(0.8))
-                            .tracking(1.2)
-
-                        Text(item.name)
-                            .font(.custom("OpenSans-Regular", size: 18))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .lineLimit(2)
+                    NavigationLink {
+                        SavedItemDetail(initialItem: item)
+                    } label: {
+                        slideshowCard(in: geo)
                     }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.ultraThinMaterial)
-                            .environment(\.colorScheme, .dark)
-                            .opacity(0.55)
-                    )
-                    .padding(14)
-                    .transition(.opacity)
+                    .buttonStyle(.plain)
+                } else {
+                    slideshowCard(in: geo)
                 }
             }
-            .frame(width: geo.size.width, height: cardHeight)
-            .clipShape(RoundedRectangle(cornerRadius: 18))
-            .shadow(color: Color.s4lAccent.opacity(0.25), radius: 16, x: 0, y: 8)
         }
         .frame(height: cardHeight)
         .padding(.horizontal, 16)
@@ -82,6 +46,56 @@ struct SlideshowView: View {
         let item = modelData.savedItems.randomElement()
         currentItem = item
         currentImage = item?.previewImage
+    }
+
+    @ViewBuilder
+    private func slideshowCard(in geo: GeometryProxy) -> some View {
+        ZStack(alignment: .bottomLeading) {
+            if let image = currentImage {
+                image
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: cardHeight)
+                    .clipped()
+                    .transition(.opacity)
+            } else {
+                LinearGradient(
+                    colors: [Color.s4lAccent.opacity(0.4), Color.s4lAccent.opacity(0.15)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .frame(width: geo.size.width, height: cardHeight)
+            }
+
+            if let item = currentItem {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(item.category.uppercased())
+                        .font(.custom("OpenSans-Regular", size: 10))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white.opacity(0.8))
+                        .tracking(1.2)
+
+                    Text(item.name)
+                        .font(.custom("OpenSans-Regular", size: 18))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(.ultraThinMaterial)
+                        .environment(\.colorScheme, .dark)
+                        .opacity(0.55)
+                )
+                .padding(14)
+                .transition(.opacity)
+            }
+        }
+        .frame(width: geo.size.width, height: cardHeight)
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .shadow(color: Color.s4lAccent.opacity(0.25), radius: 16, x: 0, y: 8)
     }
 }
 

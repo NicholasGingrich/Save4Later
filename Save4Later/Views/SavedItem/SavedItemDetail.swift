@@ -4,6 +4,8 @@ struct SavedItemDetail: View {
     @State private var showEditScreen: Bool = false
     @State private var wasDeleted = false
     @State private var showInvalidURLAlert = false
+    @State private var selectedImageIndex = 0
+    @State private var showFullScreenGallery = false
 
     @Environment(ModelData.self) private var modelData
     @Environment(\.dismiss) var dismiss
@@ -20,15 +22,21 @@ struct SavedItemDetail: View {
                 // ── Image carousel ──────────────────────────────────────
                 if !savedItem.images.isEmpty {
                     TabView {
-                        ForEach(savedItem.images, id: \.self) { name in
-                            Group {
-                                if let img = modelData.loadImageFromDocuments(name) {
-                                    img.resizable().scaledToFill()
-                                } else {
-                                    Image(name).resizable().scaledToFill()
+                        ForEach(Array(savedItem.images.enumerated()), id: \.element) { index, name in
+                            Button {
+                                selectedImageIndex = index
+                                showFullScreenGallery = true
+                            } label: {
+                                Group {
+                                    if let img = modelData.loadImageFromDocuments(name) {
+                                        img.resizable().scaledToFill()
+                                    } else {
+                                        Image(name).resizable().scaledToFill()
+                                    }
                                 }
+                                .clipped()
                             }
-                            .clipped()
+                            .buttonStyle(.plain)
                         }
                     }
                     .tabViewStyle(.page(indexDisplayMode: .automatic))
@@ -161,6 +169,78 @@ struct SavedItemDetail: View {
         } message: {
             Text("The link saved for this item doesn't appear to be a valid URL.")
         }
+        .fullScreenCover(isPresented: $showFullScreenGallery) {
+            FullScreenImageGallery(
+                imageNames: savedItem.images,
+                startIndex: selectedImageIndex
+            )
+        }
+    }
+}
+
+struct FullScreenImageGallery: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(ModelData.self) private var modelData
+
+    let imageNames: [String]
+    let startIndex: Int
+    @State private var selectedIndex: Int
+
+    init(imageNames: [String], startIndex: Int) {
+        self.imageNames = imageNames
+        self.startIndex = startIndex
+        _selectedIndex = State(initialValue: startIndex)
+    }
+
+    var body: some View {
+        NavigationStack {
+            TabView(selection: $selectedIndex) {
+                ForEach(Array(imageNames.enumerated()), id: \.offset) { index, name in
+                    ZStack {
+                        Color.black.ignoresSafeArea()
+                        imageForName(name)
+                            .resizable()
+                            .scaledToFit()
+                    }
+                    .tag(index)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .automatic))
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Label("Back", systemImage: "chevron.left")
+                    }
+                    .tint(.white)
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("\(selectedIndex + 1) / \(max(imageNames.count, 1))")
+                        .font(.custom("OpenSans-Regular", size: 14))
+                        .foregroundColor(.white)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .tint(.white)
+                }
+            }
+            .toolbarBackground(.black, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .background(Color.black)
+        }
+        .preferredColorScheme(.dark)
+    }
+
+    private func imageForName(_ name: String) -> Image {
+        if let image = modelData.loadImageFromDocuments(name) {
+            return image
+        }
+        return Image(name)
     }
 }
 

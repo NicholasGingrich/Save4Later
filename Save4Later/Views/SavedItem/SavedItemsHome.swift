@@ -1,19 +1,39 @@
 import SwiftUI
 
 struct SavedItemsHome: View {
+    enum SortOption: String, CaseIterable, Identifiable {
+        case alphabetical = "Alphabetical"
+        case newestFirst = "Newest to Oldest"
+        case oldestFirst = "Oldest to Newest"
+
+        var id: Self { self }
+    }
+
     @Environment(ModelData.self) private var modelData
     @State private var showingCreateScreen = false
     @State private var searchText = ""
+    @State private var selectedSort: SortOption = .newestFirst
+
+    private let isoFormatter = ISO8601DateFormatter()
+
+    var sortedSavedItems: [SavedItem] {
+        sortItems(modelData.savedItems)
+    }
+
+    var groupedSortedItems: [String: [SavedItem]] {
+        Dictionary(grouping: sortedSavedItems, by: { $0.category })
+    }
 
     var searchResults: [SavedItem] {
         guard !searchText.trimmingCharacters(in: .whitespaces).isEmpty else { return [] }
         let query = searchText.lowercased()
-        return modelData.savedItems.filter {
+        let filtered = modelData.savedItems.filter {
             $0.name.lowercased().contains(query) ||
             $0.notes.lowercased().contains(query) ||
             $0.link.lowercased().contains(query) ||
             $0.category.lowercased().contains(query)
         }
+        return sortItems(filtered)
     }
 
     var isSearching: Bool {
@@ -75,10 +95,11 @@ struct SavedItemsHome: View {
                             .padding(.top, 80)
                         } else {
                             // ── Normal home view ────────────────────────────────
+                            sortHeader
                             SlideshowView()
 
-                            ForEach(modelData.categories.keys.sorted(), id: \.self) { category in
-                                if let rowItems = modelData.categories[category] {
+                            ForEach(groupedSortedItems.keys.sorted(), id: \.self) { category in
+                                if let rowItems = groupedSortedItems[category] {
                                     SavedItemHomeRow(categoryName: category, rowItems: rowItems)
                                 }
                             }
@@ -121,6 +142,62 @@ struct SavedItemsHome: View {
                 .background(Color.s4lBackground)
             }
         } // ZStack
+    }
+
+    private func sortItems(_ items: [SavedItem]) -> [SavedItem] {
+        switch selectedSort {
+        case .alphabetical:
+            return items.sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+        case .newestFirst:
+            return items.sorted {
+                parsedDate(from: $0.creationDate) > parsedDate(from: $1.creationDate)
+            }
+        case .oldestFirst:
+            return items.sorted {
+                parsedDate(from: $0.creationDate) < parsedDate(from: $1.creationDate)
+            }
+        }
+    }
+
+    private func parsedDate(from value: String) -> Date {
+        isoFormatter.date(from: value) ?? .distantPast
+    }
+
+    private var sortHeader: some View {
+        HStack {
+            Text("Sort")
+                .font(.custom("OpenSans-Regular", size: 13))
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+
+            Spacer()
+
+            Menu {
+                Picker("Sort", selection: $selectedSort) {
+                    ForEach(SortOption.allCases) { option in
+                        Text(option.rawValue).tag(option)
+                    }
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Text(selectedSort.rawValue)
+                        .font(.custom("OpenSans-Regular", size: 13))
+                        .fontWeight(.semibold)
+                    Image(systemName: "arrow.up.arrow.down")
+                        .font(.system(size: 12, weight: .semibold))
+                }
+                .foregroundColor(Color.s4lAccent)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.s4lAccent.opacity(0.12))
+                .clipShape(Capsule())
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 4)
     }
 }
 

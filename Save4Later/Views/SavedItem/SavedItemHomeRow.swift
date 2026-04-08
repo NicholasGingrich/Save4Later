@@ -72,11 +72,11 @@ struct SavedItemHomeRow: View {
                 Text("\(rowItems.count)")
                     .font(.custom("OpenSans-Regular", size: 12))
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.s4lAccent)
                     .frame(minWidth: 22, minHeight: 22)
-                    .background(Color.s4lAccentLight)
+                    .background(Color.s4lAccent.opacity(0.18))
                     .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.s4lAccent.opacity(0.3), lineWidth: 1))
+                    .overlay(Capsule().stroke(Color.s4lAccent.opacity(0.45), lineWidth: 1))
             }
             .padding(.horizontal)
 
