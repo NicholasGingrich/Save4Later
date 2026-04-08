@@ -10,21 +10,20 @@ struct SlideshowView: View {
 
 
     var body: some View {
-        GeometryReader { geo in
-            Group {
-                if let item = currentItem {
-                    NavigationLink {
-                        SavedItemDetail(initialItem: item)
-                    } label: {
-                        slideshowCard(in: geo)
-                    }
-                    .buttonStyle(.plain)
-                } else {
-                    slideshowCard(in: geo)
+        Group {
+            if let item = currentItem {
+                NavigationLink {
+                    SavedItemDetail(initialItem: item)
+                } label: {
+                    slideshowCard
                 }
+                .buttonStyle(.plain)
+            } else {
+                slideshowCard
             }
         }
         .frame(height: cardHeight)
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, 16)
         .padding(.top, 8)
         .padding(.bottom, 4)
@@ -49,13 +48,13 @@ struct SlideshowView: View {
     }
 
     @ViewBuilder
-    private func slideshowCard(in geo: GeometryProxy) -> some View {
+    private var slideshowCard: some View {
         ZStack(alignment: .bottomLeading) {
             if let image = currentImage {
                 image
                     .resizable()
                     .scaledToFill()
-                    .frame(width: geo.size.width, height: cardHeight)
+                    .frame(maxWidth: .infinity, minHeight: cardHeight, maxHeight: cardHeight)
                     .clipped()
                     .transition(.opacity)
             } else {
@@ -64,7 +63,7 @@ struct SlideshowView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                .frame(width: geo.size.width, height: cardHeight)
+                .frame(maxWidth: .infinity, minHeight: cardHeight, maxHeight: cardHeight)
             }
 
             if let item = currentItem {
@@ -93,8 +92,9 @@ struct SlideshowView: View {
                 .transition(.opacity)
             }
         }
-        .frame(width: geo.size.width, height: cardHeight)
+        .frame(maxWidth: .infinity, minHeight: cardHeight, maxHeight: cardHeight)
         .clipShape(RoundedRectangle(cornerRadius: 18))
+        .contentShape(RoundedRectangle(cornerRadius: 18))
         .shadow(color: Color.s4lAccent.opacity(0.25), radius: 16, x: 0, y: 8)
     }
 }
