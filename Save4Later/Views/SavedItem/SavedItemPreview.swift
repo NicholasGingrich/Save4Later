@@ -8,7 +8,7 @@ struct SavedItemPreview: View {
     private var hasPreviewImage: Bool { !savedItem.images.isEmpty }
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .topTrailing) {
             if hasPreviewImage {
                 savedItem.previewImage
                     .renderingMode(.original)
@@ -27,6 +27,7 @@ struct SavedItemPreview: View {
                 Image(systemName: "bookmark.square.fill")
                     .font(.system(size: 34, weight: .semibold))
                     .foregroundStyle(Color.s4lAccent.opacity(0.82))
+                    .padding(10)
             }
 
             // Name + category overlay — frosted pill so text reads on any image
@@ -53,6 +54,7 @@ struct SavedItemPreview: View {
                     .opacity(0.55)
             )
             .padding(8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         }
         .frame(width: cardWidth, height: cardHeight)
         .clipShape(RoundedRectangle(cornerRadius: 14))

@@ -49,7 +49,7 @@ struct SlideshowView: View {
 
     @ViewBuilder
     private var slideshowCard: some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .topTrailing) {
             if let image = currentImage {
                 image
                     .resizable()
@@ -67,6 +67,7 @@ struct SlideshowView: View {
                     Image(systemName: "bookmark.square.fill")
                         .font(.system(size: 44, weight: .semibold))
                         .foregroundStyle(Color.s4lAccent.opacity(0.82))
+                        .padding(14)
                 }
                 .frame(maxWidth: .infinity, minHeight: cardHeight, maxHeight: cardHeight)
             }
@@ -95,6 +96,7 @@ struct SlideshowView: View {
                 )
                 .padding(14)
                 .transition(.opacity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
             }
         }
         .frame(maxWidth: .infinity, minHeight: cardHeight, maxHeight: cardHeight)
