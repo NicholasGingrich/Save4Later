@@ -1,5 +1,55 @@
 import SwiftUI
 
+// MARK: - Individual card with its own context menu state
+
+struct SavedItemCard: View {
+    @Environment(ModelData.self) private var modelData
+    let savedItem: SavedItem
+
+    @State private var isEditing = false
+    @State private var isConfirmingDelete = false
+
+    var body: some View {
+        NavigationLink {
+            SavedItemDetail(initialItem: savedItem)
+        } label: {
+            SavedItemPreview(savedItem: savedItem)
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button {
+                isEditing = true
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                isConfirmingDelete = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        } preview: {
+            SavedItemPreview(savedItem: savedItem)
+        }
+        .sheet(isPresented: $isEditing) {
+            SavedItemInfoForm(
+                currentItem: savedItem,
+                sectionText: "Edit Item",
+                closeView: { isEditing = false }
+            )
+        }
+        .alert("Delete \"\(savedItem.name)\"?", isPresented: $isConfirmingDelete) {
+            Button("Delete", role: .destructive) {
+                modelData.removeItem(savedItem)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This can't be undone.")
+        }
+    }
+}
+
+// MARK: - Category row
+
 struct SavedItemHomeRow: View {
     var categoryName: String
     var rowItems: [SavedItem]
@@ -34,12 +84,7 @@ struct SavedItemHomeRow: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(rowItems, id: \.self) { savedItem in
-                        NavigationLink {
-                            SavedItemDetail(initialItem: savedItem)
-                        } label: {
-                            SavedItemPreview(savedItem: savedItem)
-                        }
-                        .buttonStyle(.plain)
+                        SavedItemCard(savedItem: savedItem)
                     }
                 }
                 .padding(.horizontal)

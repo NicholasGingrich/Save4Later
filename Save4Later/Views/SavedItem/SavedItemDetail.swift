@@ -140,7 +140,6 @@ struct SavedItemDetail: View {
             }
         }
         .background(Color.s4lBackground)
-        .ignoresSafeArea(edges: .top)
         .toolbarBackground(Color.s4lBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .sheet(isPresented: $showEditScreen) {
