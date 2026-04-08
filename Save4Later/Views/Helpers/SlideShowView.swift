@@ -44,7 +44,7 @@ struct SlideshowView: View {
         }
         let item = modelData.savedItems.randomElement()
         currentItem = item
-        currentImage = item?.previewImage
+        currentImage = (item?.images.isEmpty == false) ? item?.previewImage : nil
     }
 
     @ViewBuilder
@@ -58,11 +58,16 @@ struct SlideshowView: View {
                     .clipped()
                     .transition(.opacity)
             } else {
-                LinearGradient(
-                    colors: [Color.s4lAccent.opacity(0.4), Color.s4lAccent.opacity(0.15)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                ZStack {
+                    LinearGradient(
+                        colors: [Color.s4lAccent.opacity(0.35), Color.s4lAccent.opacity(0.12)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    Image(systemName: "bookmark.square.fill")
+                        .font(.system(size: 44, weight: .semibold))
+                        .foregroundStyle(Color.s4lAccent.opacity(0.82))
+                }
                 .frame(maxWidth: .infinity, minHeight: cardHeight, maxHeight: cardHeight)
             }
 

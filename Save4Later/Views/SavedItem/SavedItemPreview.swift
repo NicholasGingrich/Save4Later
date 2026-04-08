@@ -5,16 +5,29 @@ struct SavedItemPreview: View {
 
     private let cardWidth: CGFloat = 160
     private let cardHeight: CGFloat = 210
+    private var hasPreviewImage: Bool { !savedItem.images.isEmpty }
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            // Explicit frame on image so scaledToFill knows both dimensions
-            savedItem.previewImage
-                .renderingMode(.original)
-                .resizable()
-                .scaledToFill()
+            if hasPreviewImage {
+                savedItem.previewImage
+                    .renderingMode(.original)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: cardWidth, height: cardHeight)
+                    .clipped()
+            } else {
+                LinearGradient(
+                    colors: [Color.s4lAccent.opacity(0.28), Color.s4lAccent.opacity(0.1)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
                 .frame(width: cardWidth, height: cardHeight)
-                .clipped()
+
+                Image(systemName: "bookmark.square.fill")
+                    .font(.system(size: 34, weight: .semibold))
+                    .foregroundStyle(Color.s4lAccent.opacity(0.82))
+            }
 
             // Name + category overlay — frosted pill so text reads on any image
             VStack(alignment: .leading, spacing: 3) {
