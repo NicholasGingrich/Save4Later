@@ -201,8 +201,6 @@ struct SavedItemsHome: View {
     }
 }
 
-// MARK: - Search result card (owns its own context menu state)
-
 struct SearchResultCard: View {
     @Environment(ModelData.self) private var modelData
     let item: SavedItem
@@ -251,8 +249,6 @@ struct SearchResultCard: View {
         }
     }
 }
-
-// MARK: - Search result row (visual only)
 
 struct SearchResultRow: View {
     let item: SavedItem

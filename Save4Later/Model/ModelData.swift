@@ -146,7 +146,6 @@ class ModelData {
         }
     }
 
-    // Bug fix: returns Bool so callers can roll back in-memory changes on failure
     @discardableResult
     func saveToDisk() -> Bool {
         do {
@@ -164,7 +163,6 @@ class ModelData {
 
     func addItem(_ item: SavedItem) {
         savedItems.append(item)
-        // Bug fix: roll back in-memory change if disk write fails
         if !saveToDisk() {
             savedItems.removeLast()
         }
@@ -174,7 +172,6 @@ class ModelData {
         guard let index = savedItems.firstIndex(where: { $0.id == item.id }) else { return }
         let removed = savedItems[index]
         savedItems.remove(at: index)
-        // Bug fix: roll back removal if disk write fails
         if !saveToDisk() {
             savedItems.insert(removed, at: index)
         }
@@ -184,14 +181,12 @@ class ModelData {
         guard let index = savedItems.firstIndex(where: { $0.id == updatedItem.id }) else { return }
         let previous = savedItems[index]
         savedItems[index] = updatedItem
-        // Bug fix: roll back update if disk write fails
         if !saveToDisk() {
             savedItems[index] = previous
         }
     }
     
     func importSharedItemIfAvailable() {
-        // Bug fix: guard against misconfigured app group instead of force-unwrapping
         guard let groupURL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: "group.save4later") else {
             print("❌ Could not access app group container 'group.save4later'")
@@ -220,13 +215,13 @@ class ModelData {
                 notes: sharedItem.notes,
                 images: filenames,
                 link: sharedItem.link,
-                category: sharedItem.category   // already a plain String — no enum conversion needed
+                category: sharedItem.category
             )
 
-            // Also refresh custom categories; the extension may have created new ones.
+            // Refresh custom categories since the extension may have created new ones
             loadCustomCategories()
 
-            // Bug fix: avoid duplicates if the same item is shared twice
+            // Avoid duplicates when same item is shared twice
             if let existingIndex = savedItems.firstIndex(where: { $0.id == savedItem.id }) {
                 savedItems[existingIndex] = savedItem
                 saveToDisk()

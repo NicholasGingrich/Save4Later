@@ -1,7 +1,5 @@
 import SwiftUI
 
-// MARK: - Individual card with its own context menu state
-
 struct SavedItemCard: View {
     @Environment(ModelData.self) private var modelData
     let savedItem: SavedItem
@@ -47,8 +45,6 @@ struct SavedItemCard: View {
         }
     }
 }
-
-// MARK: - Category row
 
 struct SavedItemHomeRow: View {
     var categoryName: String

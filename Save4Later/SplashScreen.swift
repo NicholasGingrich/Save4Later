@@ -45,11 +45,8 @@ struct SplashScreenView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.s4lBackground)
             }
-            }  // end else
-        }  // end Group
-        // Fix: observer lives here (always in the hierarchy) rather than in ContentView,
-        // so shared items are picked up whenever the app becomes active — even during the
-        // splash animation or if ContentView temporarily leaves the view tree.
+            }
+        }
         .onChange(of: scenePhase) {
             if scenePhase == .active {
                 modelData.importSharedItemIfAvailable()

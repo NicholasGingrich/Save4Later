@@ -58,5 +58,5 @@ struct ExpandableText: View {
 
 
 #Preview {
-    ExpandableText(text: "This is some sample text to see if the expandable text thing actually works. But lets add some more text adn see if it collapses.")
+    ExpandableText(text: "This is some sample text to see if the expandable text thing actually works. But lets add some more text and see if it collapses.")
 }
