@@ -8,11 +8,24 @@ struct SplashScreenView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) private var colorScheme
 
+    /// Persisted across launches — false on a fresh install, true after
+    /// the user completes or skips the guided tour.
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+
     var body: some View {
         Group {
             if isActive {
                 ContentView()
                     .environment(modelData)
+                    .fullScreenCover(isPresented: Binding(
+                        get: { !hasSeenOnboarding },
+                        set: { if !$0 { hasSeenOnboarding = true } }
+                    )) {
+                        OnboardingView {
+                            hasSeenOnboarding = true
+                        }
+                        .font(.custom("OpenSans-Regular", size: 16))
+                    }
             } else {
             GeometryReader { geometry in
                 VStack {

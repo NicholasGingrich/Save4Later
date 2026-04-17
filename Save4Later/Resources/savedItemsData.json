@@ -6,15 +6,15 @@
     "lastModifiedDate": "2025-06-21T00:00:00Z",
     "notes": "Looks like a great hike. Cool ridge and 360 views.",
     "images": ["switzerland", "switzerland-2"],
-    "link": "",
+    "link": "https://google.com",
     "category": "Places"
   },
   {
     "id": 2,
-    "name": "Chicken and Grape Pasts Salad",
-    "creationDate": "2025-06-21T00:00:00Z",
-    "lastModifiedDate": "2025-06-21T00:00:00Z",
-    "notes": "Saw this on a foodie TikTok. Chef trained under Jiro! Looks delicious.",
+    "name": "Chicken and Grape Pasta Salad",
+    "creationDate": "2025-06-22T00:00:00Z",
+    "lastModifiedDate": "2025-06-22T00:00:00Z",
+    "notes": "Saw this on Pinterest. Chef trained under Jiro! Looks delicious.",
     "images": ["chicken-grape-pasta"],
     "link": "",
     "category": "Recipes"
@@ -22,11 +22,41 @@
   {
     "id": 3,
     "name": "Scallops & Risotto",
-    "creationDate": "2025-06-21T00:00:00Z",
-    "lastModifiedDate": "2025-06-21T00:00:00Z",
+    "creationDate": "2025-06-23T00:00:00Z",
+    "lastModifiedDate": "2025-06-23T00:00:00Z",
     "notes": "Had this at a restuarant and it was awesome! Need to make at home.",
     "images": ["scallops-and-risotto"],
     "link": "",
     "category": "Recipes"
+  },
+  {
+    "id": 4,
+    "name": "Salem, MA",
+    "creationDate": "2025-06-24T00:00:00Z",
+    "lastModifiedDate": "2025-06-24T00:00:00Z",
+    "notes": "Great waterside restaurant scene.",
+    "images": ["salem"],
+    "link": "",
+    "category": "Places"
+  },
+  {
+    "id": 5,
+    "name": "Shrimp Bowls",
+    "creationDate": "2025-06-25T00:00:00Z",
+    "lastModifiedDate": "2025-06-25T00:00:00Z",
+    "notes": "Delicious Japanese barbeque shrimp bowls - 10/10",
+    "images": ["shrimp"],
+    "link": "",
+    "category": "Recipes"
+  },
+  {
+    "id": 5,
+    "name": "Brunswick, ME",
+    "creationDate": "2025-06-26T00:00:00Z",
+    "lastModifiedDate": "2025-06-26T00:00:00Z",
+    "notes": "Cool bridge to lake in Brunswick.",
+    "images": ["brunswick"],
+    "link": "",
+    "category": "Places"
   }
 ]

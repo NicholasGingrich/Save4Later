@@ -135,14 +135,16 @@ class ModelData {
             do {
                 let data = try Data(contentsOf: fileURL)
                 savedItems = try decoder.decode([SavedItem].self, from: data)
-                print("Saved items have loaded successfully. Here are the saved items \(savedItems)")
+                print("Saved items loaded successfully: \(savedItems.count) item(s).")
             } catch {
-                print("❌ Failed to load savedItems.json from disk: \(error). Falling back to bundled JSON.")
-                savedItems = load("savedItemsData.json")
+                print("❌ Failed to load savedItems.json from disk: \(error). Starting with empty list.")
+                savedItems = []
             }
         } else {
-            print("File does not exist. Error loading disk data failed, falling back to bundled JSON")
-            savedItems = load("savedItemsData.json")
+            // No saved data yet (fresh install) — start empty so the
+            // "Nothing saved yet" empty-state screen is shown.
+            print("No savedItems.json found — fresh install, starting empty.")
+            savedItems = []
         }
     }
 
