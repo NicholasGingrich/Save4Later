@@ -2,9 +2,9 @@ import SwiftUI
 
 struct SavedItemCard: View {
     @Environment(ModelData.self) private var modelData
+    @Environment(\.requestEditItem) private var requestEditItem
     let savedItem: SavedItem
 
-    @State private var isEditing = false
     @State private var isConfirmingDelete = false
 
     var body: some View {
@@ -16,7 +16,7 @@ struct SavedItemCard: View {
         .buttonStyle(.plain)
         .contextMenu {
             Button {
-                isEditing = true
+                requestEditItem(savedItem)
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
@@ -27,13 +27,6 @@ struct SavedItemCard: View {
             }
         } preview: {
             SavedItemPreview(savedItem: savedItem)
-        }
-        .sheet(isPresented: $isEditing) {
-            SavedItemInfoForm(
-                currentItem: savedItem,
-                sectionText: "Edit Item",
-                closeView: { isEditing = false }
-            )
         }
         .alert("Delete \"\(savedItem.name)\"?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {

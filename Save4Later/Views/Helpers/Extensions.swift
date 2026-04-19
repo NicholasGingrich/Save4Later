@@ -1,5 +1,25 @@
 import SwiftUI
 
+// MARK: - Form presentation environment action
+// Views deep inside a NavigationSplitView column (sidebar or detail) can't
+// present a true full-screen cover — UIKit constrains it to that column.
+// Instead, child views read this environment action and call it; SavedItemsHome
+// owns the state and presents the cover from its root ZStack, outside the
+// NavigationSplitView, so it genuinely covers the whole screen.
+
+private struct RequestEditItemKey: EnvironmentKey {
+    static let defaultValue: (SavedItem) -> Void = { _ in }
+}
+
+extension EnvironmentValues {
+    /// Call with a SavedItem to open the edit form from the nearest
+    /// SavedItemsHome ancestor.
+    var requestEditItem: (SavedItem) -> Void {
+        get { self[RequestEditItemKey.self] }
+        set { self[RequestEditItemKey.self] = newValue }
+    }
+}
+
 extension String {
     var titleCased: String {
         return self

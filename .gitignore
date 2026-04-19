@@ -1,0 +1,30 @@
+# ── Xcode user state ──────────────────────────────────────────────────────────
+# Personal editor state (open tabs, scroll positions, etc.) — never commit these
+*.xcuserstate
+xcuserdata/
+
+# ── Xcode build artifacts ──────────────────────────────────────────────────────
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# ── Swift Package Manager ──────────────────────────────────────────────────────
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+
+# ── CocoaPods (if ever added) ─────────────────────────────────────────────────
+Pods/
+*.xcworkspace
+!/*.xcworkspace
+
+# ── macOS noise ───────────────────────────────────────────────────────────────
+.DS_Store

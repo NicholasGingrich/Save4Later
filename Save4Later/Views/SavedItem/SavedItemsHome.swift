@@ -10,7 +10,6 @@ struct SavedItemsHome: View {
     }
 
     @Environment(ModelData.self) private var modelData
-    @State private var showingCreateScreen = false
     @State private var searchText = ""
     @State private var selectedSort: SortOption = .newestFirst
 
@@ -43,7 +42,7 @@ struct SavedItemsHome: View {
     var body: some View {
         ZStack {
             Color.s4lBackground.ignoresSafeArea()
-            NavigationSplitView {
+            NavigationSplitView {  // ← form covers are on the ZStack below, not here
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         if isSearching {
@@ -115,19 +114,13 @@ struct SavedItemsHome: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
-                            showingCreateScreen.toggle()
+                            presentItemForm()
                         } label: {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
                                 .foregroundColor(Color.s4lAccent)
                         }
                     }
-                }
-                .sheet(isPresented: $showingCreateScreen) {
-                    SavedItemInfoForm(
-                        sectionText: "Create New Item",
-                        closeView: { showingCreateScreen.toggle() }
-                    )
                 }
             } detail: {
                 VStack(spacing: 12) {
@@ -142,6 +135,58 @@ struct SavedItemsHome: View {
                 .background(Color.s4lBackground)
             }
         } // ZStack
+        // Expose the edit action to all descendants (SearchResultCard, SavedItemDetail).
+        .environment(\.requestEditItem, { [self] item in presentItemForm(item: item) })
+    }
+
+    // MARK: - UIKit full-screen form presentation
+    //
+    // SwiftUI's .sheet / .fullScreenCover are intercepted by
+    // UISplitViewController on iPad and downgraded to a page-sheet card.
+    // Presenting directly from the root UIWindow bypasses that entirely.
+
+    private func presentItemForm(item: SavedItem? = nil) {
+        guard
+            let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+            let window = windowScene.windows.first(where: { $0.isKeyWindow })
+                ?? windowScene.windows.first,
+            let rootVC = window.rootViewController
+        else { return }
+
+        // Walk to the topmost already-presented view controller.
+        var topVC = rootVC
+        while let presented = topVC.presentedViewController {
+            topVC = presented
+        }
+
+        // A thin SwiftUI wrapper that reads @Environment(\.dismiss) so the
+        // form's close button correctly dismisses the UIHostingController.
+        struct FormWrapper: View {
+            let item: SavedItem?
+            @Environment(\.dismiss) private var dismiss
+            var body: some View {
+                SavedItemInfoForm(
+                    currentItem: item,
+                    sectionText: item == nil ? "Create New Item" : "Edit Item",
+                    closeView: { dismiss() }
+                )
+                .font(.custom("OpenSans-Regular", size: 16))
+            }
+        }
+
+        let hostingVC = UIHostingController(
+            rootView: FormWrapper(item: item).environment(modelData)
+        )
+        hostingVC.modalPresentationStyle = .formSheet
+        // 85 % of the screen width, 90 % of the height — large modal card on iPad,
+        // ignored on iPhone (which uses its own sheet behaviour).
+        hostingVC.preferredContentSize = CGSize(
+            width:  window.bounds.width  * 0.85,
+            height: window.bounds.height * 0.90
+        )
+        topVC.present(hostingVC, animated: true)
     }
 
     private func sortItems(_ items: [SavedItem]) -> [SavedItem] {
@@ -203,10 +248,10 @@ struct SavedItemsHome: View {
 
 struct SearchResultCard: View {
     @Environment(ModelData.self) private var modelData
+    @Environment(\.requestEditItem) private var requestEditItem
     let item: SavedItem
     let query: String
 
-    @State private var isEditing = false
     @State private var isConfirmingDelete = false
 
     var body: some View {
@@ -218,7 +263,7 @@ struct SearchResultCard: View {
         .buttonStyle(.plain)
         .contextMenu {
             Button {
-                isEditing = true
+                requestEditItem(item)
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
@@ -231,13 +276,6 @@ struct SearchResultCard: View {
             SearchResultRow(item: item, query: query)
                 .frame(width: 300)
                 .padding(4)
-        }
-        .sheet(isPresented: $isEditing) {
-            SavedItemInfoForm(
-                currentItem: item,
-                sectionText: "Edit Item",
-                closeView: { isEditing = false }
-            )
         }
         .alert("Delete \"\(item.name)\"?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {

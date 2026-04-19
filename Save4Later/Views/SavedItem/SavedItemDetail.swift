@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct SavedItemDetail: View {
-    @State private var showEditScreen: Bool = false
-    @State private var wasDeleted = false
+    @Environment(\.requestEditItem) private var requestEditItem
     @State private var showInvalidURLAlert = false
     @State private var selectedImageIndex = 0
     @State private var showFullScreenGallery = false
@@ -102,25 +101,15 @@ struct SavedItemDetail: View {
         .background(Color.s4lBackground)
         .toolbarBackground(Color.s4lBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .sheet(isPresented: $showEditScreen) {
-            SavedItemInfoForm(
-                currentItem: currentItem,
-                sectionText: "Edit Item",
-                closeView: { showEditScreen = false },
-                onDelete: {
-                    wasDeleted = true
-                    showEditScreen = false
+        .onChange(of: savedItems) { _, newItems in
+            // If the currently viewed item was deleted (e.g. from the edit form),
+            // pop back on iPhone / clear detail on iPad.
+            if !newItems.contains(where: { $0.id == selectedItemID }) {
+                if let first = newItems.first {
+                    selectedItemID = first.id
                 }
-            )
-        }
-        .onChange(of: savedItems.count) {
-            if let first = savedItems.first,
-               !savedItems.contains(where: { $0.id == selectedItemID }) {
-                selectedItemID = first.id
+                dismiss()
             }
-        }
-        .onChange(of: wasDeleted) {
-            if wasDeleted { dismiss() }
         }
         .alert("Invalid Link", isPresented: $showInvalidURLAlert) {
             Button("OK", role: .cancel) {}
@@ -189,7 +178,7 @@ struct SavedItemDetail: View {
                     Spacer()
 
                     Button {
-                        showEditScreen.toggle()
+                        requestEditItem(currentItem)
                     } label: {
                         Image(systemName: "pencil.circle.fill")
                             .font(.title2)
